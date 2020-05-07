@@ -1,7 +1,11 @@
 {
   "name": "api",
   "version": "1.0.0",
-  "description": "",
+  "description": "My chat app api",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/valtur11/My-chat-app.git"
+  },
   "main": "index.js",
   "directories": {
     "test": "test"
@@ -10,7 +14,8 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "eslint": "^6.8.0",
-    "nyc": "^15.0.1"
+    "nyc": "^15.0.1",
+    "sinon": "^9.0.2"
   },
   "scripts": {
     "test": "nyc --reporter=html --reporter=text mocha --recursive \"./test/*/*.spec.js\""
