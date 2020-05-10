@@ -1,3 +1,7 @@
+/**
+ * Function returning all authentication services
+ * @param {*} lib all dependecies (Dependecy injection)
+ */
 const createAuthMethods = (lib) => {
   /**
      * Helper function that creates new token that returns the payload argument and the token. should be private and immutable.
@@ -26,4 +30,5 @@ const createAuthMethods = (lib) => {
     }
   };
 };
+
 module.exports = createAuthMethods;
