@@ -6,7 +6,7 @@
   * @todo isMatch is always true check test
  */
 const expect = require('chai').expect;
-const createAuthMethods = require('../../authentication/controller');
+const createAuthMethods = require('../../authentication/createAuthMethods');
 const sinon = require('sinon');
 const expectedUserDetails = { email: 'tester@test.com'};
 const token = 'header.payload.signature';
@@ -101,6 +101,12 @@ describe('Authentication', function() {
     });
   });
   describe('Log in', function () {
+    it('should return 200 when email and password are correct', async () => {
+      const expectedPassword = 'sxdcfvg';
+      const { login } = createAuthMethods({ ...commonAuthOptions });
+      const user = await login(expectedPassword);
+      expect(user.status).to.be.equal(200);
+    });
     it('should return 400 when email or username is incorrect');
   });
 });
