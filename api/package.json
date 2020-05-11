@@ -18,7 +18,8 @@
     "sinon": "^9.0.2"
   },
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text mocha --recursive \"./test/*/*.spec.js\""
+    "test": "nyc --reporter=html --reporter=text mocha --recursive \"./test/*/*.spec.js\"",
+    "nodemon-test": "nodemon --exec npm test"
   },
   "author": "Valentin Ratchev",
   "license": "MIT"
