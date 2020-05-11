@@ -8,7 +8,7 @@
 const expect = require('chai').expect;
 const createAuthMethods = require('../../authentication/createAuthMethods');
 const sinon = require('sinon');
-const expectedUserDetails = { email: 'tester@test.com'};
+const expectedUserDetails = { email: 'tester@test.com', password: 'test'};
 const token = 'header.payload.signature';
 const sign = sinon.fake.returns(token);
 const JWT_SECRET = 'This is a JWT secret for mocha testing';
@@ -96,12 +96,54 @@ describe('Authentication', function() {
   });
 
   describe('Log in', function () {
-    it('should return 200 when email and password are correct', async () => {
-      const expectedPassword = 'sxdcfvg';
-      const { login } = createAuthMethods({ ...commonAuthOptions });
-      const user = await login(expectedPassword);
-      expect(user.status).to.be.equal(200);
+    const createFake = (isMatch, throwError = false) => {
+      const fakeObj = {
+        ...commonAuthOptions,
+        user: {}
+      };
+
+      if(throwError){
+        fakeObj.user = { find: sinon.fake.throws(new Error('Unexpected'))};
+      }else {
+        fakeObj.user = { find: sinon.fake.returns([{
+          ...expectedUserDetails,
+          comparePassword: sinon.fake.returns(isMatch)
+        }])};
+      }
+      return createAuthMethods(fakeObj);
+    };
+
+    const tests = [
+      {
+        description: 'should return 200 with user details when email and password are correct',
+        isMatch: true,
+        expected: [['data', {...expectedUserDetails, token}], ['status', 200]]
+      },
+      {
+        description: 'should return 400 when email or username is incorrect',
+        isMatch: false,
+        expected: [['status', 400]]
+      },
+      {
+        description: 'should return 500 when unexpected error had happened',
+        throwError: true,
+        expected: [['status', 500]]
+      }
+    ];
+
+    tests.forEach(test => {
+      it(test.description, async () => {
+        const { login } = createFake(test.isMatch, test.throwError);
+        const user = await login(expectedUserDetails.email, expectedUserDetails.password);
+        test.expected.forEach(val => {
+          const actual = user[val[0]] || user;
+          if(val[0] === 'data') {
+            expect(actual).to.include(val[1]);
+          } else {
+            expect(actual).to.be.equal(val[1]);
+          }
+        });
+      });
     });
-    it('should return 400 when email or username is incorrect');
   });
 });
