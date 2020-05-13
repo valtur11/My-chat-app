@@ -23,12 +23,16 @@ const userSchema = Schema({
 });
 
 userSchema.pre('save', async function (next) {
-  if(this.isModified('password')) {
-    return next();
-  }
+  try {
+    if(!this.isModified('password')) {
+      return next();
+    }
 
-  const hashedPassword = await bcrypt.hash(this.password, 10);
-  this.password = hashedPassword;
+    const hashedPassword = await bcrypt.hash(this.password, 10);
+    this.password = hashedPassword;
+  } catch (error) {
+    return next(error);
+  }
 });
 
 userSchema.methods.comparePasword = async function (candidatePassword, next) {
