@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const Schema = mongoose.Schema;
 //eslint-disable-next-line
@@ -19,6 +20,15 @@ const userSchema = Schema({
     minlength: 8,
     maxlength: 100
   }
+});
+
+userSchema.pre('save', async function (next) {
+  if(this.isModified('password')) {
+    return next();
+  }
+
+  const hashedPassword = await bcrypt.hash(this.password, 10);
+  this.password = hashedPassword;
 });
 
 const User = mongoose.model('User', userSchema);
