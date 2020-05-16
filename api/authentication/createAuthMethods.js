@@ -11,7 +11,7 @@ const createAuthMethods = (lib) => {
      */
   function createToken (payload) {
     const options = { expiresIn: '2h' };
-    const token = lib.jwt.sign(payload, lib.env.JWT_SECRET, [options]);
+    const token = lib.jwt.sign(payload, lib.env.JWT_SECRET, options);
     return { ...payload, token };
   }
 
@@ -24,13 +24,14 @@ const createAuthMethods = (lib) => {
     async signup(userDetails) {
       try {
         const User = await lib.user.create(userDetails);
-        const UserAndToken = createToken(User);
+        const UserAndToken = createToken({ email: User.email });
         return { data: {...UserAndToken}, status: 201 };
       } catch (error) {
+        const msg = error.message;
         if(error.code === 11000) {
-          return { status: 400 };
+          return { status: 400, msg };
         } else {
-          return { status: 500 };
+          return { status: 500, msg };
         }
       }
     },
@@ -42,19 +43,21 @@ const createAuthMethods = (lib) => {
      */
     async login(email, candidatePassword) {
       try {
-        const user = lib.user.find({ email })[0];
-        const isMatch = user.comparePassword(candidatePassword);
+        const user = await lib.user.findOne({ email });
+        const isMatch = await user.comparePassword(candidatePassword);
         if(isMatch){
-          const UserAndToken = createToken(user);
+          const UserAndToken = createToken({email: user.email});
           return { data: { ...UserAndToken }, status: 200 };
         } else {
           throw { status: 400 };
         }
       } catch (error) {
+        const msg = error.message;
         if(error.status === 400){
+          //throw error
           return error;
         } else {
-          return { status: 500 };
+          return { msg , status: 500 };
         }
       }
     }
