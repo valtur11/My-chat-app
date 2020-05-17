@@ -1,3 +1,4 @@
+const debug = require('debug')('createAuthMethods');
 /**
  * Function returning all authentication services
  * @param {*} lib all dependecies (Dependecy injection)
@@ -44,6 +45,7 @@ const createAuthMethods = (lib) => {
     async login(email, candidatePassword) {
       try {
         const user = await lib.user.findOne({ email });
+        debug('isMatch is being called');
         const isMatch = await user.comparePassword(candidatePassword);
         if(isMatch){
           const UserAndToken = createToken({email: user.email});

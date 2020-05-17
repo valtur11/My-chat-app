@@ -32,7 +32,7 @@ describe('Authentication', function() {
         expect(sign.calledWith(expectedUserDetails, JWT_SECRET)).to.be.true;
       });
       it('should expire in 2 hours', function () {
-        expect(sign.lastCall.args[2]).to.deep.equal([options]);
+        expect(sign.lastCall.args[2]).to.deep.equal({...options });
       });
     });
 
@@ -54,7 +54,7 @@ describe('Authentication', function() {
         description: 'should return status 201 with user details and token',
         userCreate: sinon.fake.returns(expectedUserDetails),
         args: expectedUserDetails,
-        expected: [['data', {...expectedUserDetails, token}], ['', {status: 201}]]
+        expected: [['data', {email: expectedUserDetails.email, token}], ['', {status: 201}]]
       },
       {
         description: 'should return 400 when email or username is taken',
@@ -76,7 +76,7 @@ describe('Authentication', function() {
           (clock) ? resolve (expectedUserDetails) : reject();
         })),
         args: expectedUserDetails,
-        expected: [['data', {...expectedUserDetails, token}], ['', {status: 201}]]
+        expected: [['data', {email: expectedUserDetails.email, token}], ['', {status: 201}]]
       }
     ];
 
@@ -103,21 +103,21 @@ describe('Authentication', function() {
       };
 
       if(throwError){
-        fakeObj.user = { find: sinon.fake.throws(new Error('Unexpected'))};
+        fakeObj.user = { findOne: sinon.fake.throws(new Error('Unexpected'))};
       }else {
-        fakeObj.user = { find: sinon.fake.returns([{
+        fakeObj.user = { findOne: sinon.fake.returns({
           ...expectedUserDetails,
           comparePassword: sinon.fake.returns(isMatch)
-        }])};
+        })};
       }
       return createAuthMethods(fakeObj);
     };
-
+    const email =  expectedUserDetails.email;
     const tests = [
       {
         description: 'should return 200 with user details when email and password are correct',
         isMatch: true,
-        expected: [['data', {...expectedUserDetails, token}], ['status', 200]]
+        expected: [['data', {email, token}], ['status', 200]]
       },
       {
         description: 'should return 400 when email or username is incorrect',
@@ -137,11 +137,11 @@ describe('Authentication', function() {
         const user = await login(expectedUserDetails.email, expectedUserDetails.password);
         test.expected.forEach(val => {
           const actual = user[val[0]] || user;
-          if(val[0] === 'data') {
-            expect(actual).to.include(val[1]);
-          } else {
-            expect(actual).to.be.equal(val[1]);
-          }
+         // if(val[0] === 'data') {
+            expect(actual).to.deep.equal(val[1]);
+          //} else {
+         //   expect(actual).to.be.equal(val[1]);
+          //}
         });
       });
     });
