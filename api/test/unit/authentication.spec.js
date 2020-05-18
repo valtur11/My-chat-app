@@ -48,7 +48,6 @@ describe('Authentication', function() {
     const serverError = new Error('Server failure.');
     serverError.code = 'This is unexpected error code';
     // singup service, independent from express
-    // res.status(obj.status).json(object.userDetails);
     const tests = [
       {
         description: 'should return status 201 with user details and token',
@@ -137,11 +136,7 @@ describe('Authentication', function() {
         const user = await login(expectedUserDetails.email, expectedUserDetails.password);
         test.expected.forEach(val => {
           const actual = user[val[0]] || user;
-         // if(val[0] === 'data') {
-            expect(actual).to.deep.equal(val[1]);
-          //} else {
-         //   expect(actual).to.be.equal(val[1]);
-          //}
+          expect(actual).to.deep.equal(val[1]);
         });
       });
     });
