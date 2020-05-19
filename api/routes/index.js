@@ -1,9 +1,9 @@
 const express = require('express');
 const apiRouter = express.Router();
 const bodyParser = require('body-parser');
-
 const connectDB = require('../config/mongoose');
 const auth = require('../authentication');
+const errorHandler = require('./errorHandler');
 
 connectDB();
 
@@ -20,7 +20,9 @@ apiRouter.post('/login', async (req, res, next) => {
 });
 
 apiRouter.use((req, res, next) => {
-  res.json({ status: 404, message: 'Not Found' });
+  next({ status: 404, message: 'Not Found' });
 });
+
+apiRouter.use(errorHandler);
 
 module.exports = apiRouter;
