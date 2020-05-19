@@ -10,13 +10,21 @@ connectDB();
 apiRouter.use(bodyParser.json());
 
 apiRouter.post('/signup', async (req, res, next) => {
-  const data = await auth.signup(req.body);
-  res.status(data.status).json(data.data || data);
+  try {
+    const data = await auth.signup(req.body);
+    res.status(data.status).json(data.data || data);
+  } catch (error) {
+    next(error);
+  }
 });
 
 apiRouter.post('/login', async (req, res, next) => {
-  const data = await auth.login(req.body.email, req.body.password);
-  res.status(data.status).json(data.data || data);
+  try {
+    const data = await auth.login(req.body.email, req.body.password);
+    res.status(data.status).json(data.data || data);
+  } catch (error) {
+    next(error);
+  }
 });
 
 apiRouter.use((req, res, next) => {
