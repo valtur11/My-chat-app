@@ -1,8 +1,20 @@
+import Head from 'next/head'
+import Link from 'next/link'
+
 function Layout({ children }) {
   return (
     <>
-      <header className = 'd-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm'>
-      <h5 className="my-0 mr-md-auto font-weight-normal"> <img src="/chat.svg" /> My chat app </h5>
+      <Head>
+        <title>My chat app</title>
+        <link rel="icon" href="favicon.ico" />
+      </Head>
+      <header className = 'fixed-top align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm'>
+        <h5 className="my-0 mr-md-auto font-weight-normal"> 
+          <Link href='/'>
+            <a style = {{textDecoration: 'none'}}> <img src="/chat.svg" style = {{padding: '0 1rem 0 1rem'}}/> My chat app </a>
+          </Link>
+        </h5>
+     
       </header>
       <main role = 'main'>
         <div className = 'container'>

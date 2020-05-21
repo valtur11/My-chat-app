@@ -1,14 +1,8 @@
-import Head from 'next/head'
 import Layout from '../components/Layout'
 
 export default function Home() {
   return (
     <Layout>
-      <Head>
-        <title>My chat app</title>
-        <link rel="icon" href="favicon.ico" />
-      </Head>
-
         <h1 className="title">
           A new, simple way to chat online
         </h1>
