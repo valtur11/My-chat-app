@@ -5,8 +5,8 @@ export default function Home() {
   return (
     <Layout>
       <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
+        <title>My chat app</title>
+        <link rel="icon" href="favicon.ico" />
       </Head>
 
         <h1 className="title">
@@ -18,7 +18,14 @@ export default function Home() {
         </p>
         
         <div className="container">
-         <img  class="img-fluid" src = '/images/chat-app.png' />
+          <div class="row">
+            <div class="col-5">
+              <img src='images/chat-app.png' class="card-img"/>
+            </div>
+            <div class="col-7">
+            <img src = 'images/ipad-1721428_1920.jpg' style={{width: '48rem'}}/>
+            </div>
+            </div>
         </div>
     </Layout>
   )
