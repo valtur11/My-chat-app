@@ -1,5 +1,5 @@
-import Head from 'next/head'
-import Link from 'next/link'
+import Head from 'next/head';
+import Link from 'next/link';
 
 function Layout({ children }) {
   return (
@@ -11,15 +11,15 @@ function Layout({ children }) {
       </Head>
 
       <header className = 'sticky-top align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm'>
-        <h5 className="my-0 mr-md-auto font-weight-normal"> 
+        <h5 className="my-0 mr-md-auto font-weight-normal">
           <Link href='/'>
             <a style = {{textDecoration: 'none'}}> <img src="/chat.svg" style = {{padding: '0 1rem 0 1rem'}}/> My chat app </a>
           </Link>
         </h5>
-     
+
       </header>
       <main role = 'main'>
-          {children}
+        {children}
       </main>
       <footer className = 'pt-4 my-md-5 pt-md-5 border-top text-muted'>
         <div className = 'container'>
@@ -29,7 +29,7 @@ function Layout({ children }) {
         </div>
       </footer>
     </>
-  )
+  );
 }
 
-export default Layout
+export default Layout;
