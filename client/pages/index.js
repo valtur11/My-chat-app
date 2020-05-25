@@ -1,8 +1,9 @@
 import Layout from '../components/Layout';
+import PropTypes from 'prop-types';
 
-export default function Home() {
+export default function Home({data}) {
   return (
-    <Layout>
+    <Layout date = {data}>
       <div className="jumbotron jumbotron-fluid">
         <div className = 'container'>
           <h1>
@@ -30,3 +31,17 @@ export default function Home() {
     </Layout>
   );
 }
+
+export async function getStaticProps() {
+  const data = { currentYear: new Date().getFullYear() };
+
+  return {
+    props: {
+      data
+    }
+  };
+}
+
+Home.propTypes = {
+  data: PropTypes.object
+};

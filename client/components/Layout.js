@@ -2,7 +2,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
 
-function Layout({ children }) {
+function Layout({ children, date }) {
   return (
     <>
       <Head>
@@ -26,7 +26,7 @@ function Layout({ children }) {
         <div className = 'container'>
           <p> <a href = '#'> Privacy Policy </a> </p>
           <p> <a href = '#'> Terms of Service </a> </p>
-          <p> &copy; 2020 My chat app. Created by <a href = 'https://valentinratchev.com'> Valentin Ratchev </a> </p>
+          <p> &copy; {date.currentYear} My chat app. Created by <a href = 'https://valentinratchev.com'> Valentin Ratchev </a> </p>
         </div>
       </footer>
     </>
@@ -34,7 +34,8 @@ function Layout({ children }) {
 }
 
 Layout.propTypes = {
-  children: PropTypes.array
+  children: PropTypes.array,
+  date: PropTypes.object
 };
 
 export default Layout;
