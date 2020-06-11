@@ -8,7 +8,7 @@ const cors = require('cors');
 
 connectDB();
 
-apiRouter.use(cors());// @Todo: Enable CORS using whitelist
+apiRouter.use(cors()); // @Todo: Enable CORS using whitelist
 apiRouter.use(bodyParser.json());
 
 apiRouter.post('/signup', async (req, res, next) => {
