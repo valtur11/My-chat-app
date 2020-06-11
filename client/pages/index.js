@@ -1,5 +1,6 @@
 import Layout from '../components/Layout';
 import PropTypes from 'prop-types';
+import AuthForm from '../components/Authentication';
 
 export default function Home({data}) {
   return (
@@ -15,6 +16,8 @@ export default function Home({data}) {
           </p>
         </div>
       </div>
+
+      <AuthForm />
 
       <div className = 'container'>
         <div className="my-5">
