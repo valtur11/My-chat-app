@@ -4,9 +4,11 @@ const bodyParser = require('body-parser');
 const connectDB = require('../config/mongoose');
 const auth = require('../authentication');
 const errorHandler = require('./errorHandler');
+const cors = require('cors');
 
 connectDB();
 
+apiRouter.use(cors());// @Todo: Enable CORS using whitelist
 apiRouter.use(bodyParser.json());
 
 apiRouter.post('/signup', async (req, res, next) => {
