@@ -7,7 +7,7 @@ export default function Signup ({data}) {
       <div className="jumbotron jumbotron-fluid">
         <div className = 'container'>
           <h1>
-              Signup
+              Signup now
           </h1>
 
           <p className="lead">
