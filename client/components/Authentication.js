@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 const base_api_url = 'http://localhost:8081/api';
 
-function AuthForm () {
+function AuthForm ({ type }) {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -10,6 +10,7 @@ function AuthForm () {
     errorMessage: '',
     successMessage: ''
   });
+  const authType = type.charAt(0).toUpperCase() + type.slice(1);
 
   function handleInputChange(event) {
     const target = event.target;
@@ -25,14 +26,22 @@ function AuthForm () {
 
   function handleSubmit(event) {
     event.preventDefault();
-    axios.post(`${base_api_url}/login`, { ...formData })
+    axios.post(`${base_api_url}/${type}`, { ...formData })
       .then(function (response) {
         console.log('res', response);
-        setFormData({...formData, successMessage: response.data});
+        setFormData({
+          ...formData,
+          errorMessage: '',
+          successMessage: response.data
+        });
       })
       .catch(function (error) {
         console.error(error);
-        setFormData({...formData, errorMessage: error.message || 'Something went wrong.'});
+        setFormData({
+          ...formData,
+          errorMessage: error.message || 'Something went wrong.',
+          successMessage: ''
+        });
       });
   }
 
@@ -44,7 +53,7 @@ function AuthForm () {
         </div>)}
 
         {formData.successMessage && (<div className='alert alert-success' role="alert">
-          Login successful. Email: {formData.successMessage.email}
+          {authType} successful. Email: {formData.successMessage.email}
         </div>)}
 
         <div className='form-group'>
@@ -82,13 +91,16 @@ function AuthForm () {
             </div>
           </div>
 
-          <p className='text-muted'><a href="#">Forgot your password?</a></p>
+          { type === 'login' && (<p className='text-muted'><a href="#">Forgot your password?</a></p>)}
         </div>
 
-        <input type="submit" className ='btn btn-primary my-2' value='Login' />
+        <input type="submit" className ='btn btn-primary my-2' value={authType} />
 
-        <p className='text-muted'>Need an account? <a href="#">Sign up</a></p>
-
+        {
+          type === 'login' ? (
+            <p className='text-muted'>Need an account? <a href="/signup">Sign up</a></p>
+          ) : (<p className='text-muted'>Already have an account? <a href="/">Login</a></p>)
+        }
       </form>
     </>
   );

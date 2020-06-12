@@ -17,7 +17,7 @@ export default function Home({data}) {
         </div>
       </div>
 
-      <AuthForm />
+      <AuthForm type='login'/>
 
       <div className = 'container'>
         <div className="my-5">
