@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 const base_api_url = 'http://localhost:8081/api';
 import PropTypes from 'prop-types';
+import Link from 'next/link';
 
 function AuthForm ({ type }) {
   const [formData, setFormData] = useState({
@@ -99,8 +100,8 @@ function AuthForm ({ type }) {
 
         {
           type === 'login' ? (
-            <p className='text-muted'>Need an account? <a href="/signup">Sign up</a></p>
-          ) : (<p className='text-muted'>Already have an account? <a href="/">Login</a></p>)
+            <p className='text-muted'>Need an account? <Link href='/signup'><a> Sign up </a></Link></p>
+          ) : (<p className='text-muted'>Already have an account? <Link href='/'><a> Login </a></Link></p>)
         }
       </form>
     </>
