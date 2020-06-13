@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 const base_api_url = 'http://localhost:8081/api';
+import PropTypes from 'prop-types';
 
 function AuthForm ({ type }) {
   const [formData, setFormData] = useState({
@@ -105,5 +106,9 @@ function AuthForm ({ type }) {
     </>
   );
 }
+
+AuthForm.propTypes = {
+  type: PropTypes.object
+};
 
 export default AuthForm;
