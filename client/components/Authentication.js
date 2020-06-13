@@ -109,7 +109,7 @@ function AuthForm ({ type }) {
 }
 
 AuthForm.propTypes = {
-  type: PropTypes.object
+  type: PropTypes.string
 };
 
 export default AuthForm;
