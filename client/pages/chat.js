@@ -13,7 +13,7 @@ export default function Chat({data}) {
   socket.on('chat1', text => {
     setFormData({
       ...formData,
-      chatHistory: [text]
+      chatHistory: [...formData.chatHistory, text]
     });
   });
 
@@ -31,9 +31,9 @@ export default function Chat({data}) {
     event.preventDefault();
     socket.emit('chat2', formData.text);
     setFormData({
-      chatHistory: [],
+      chatHistory: [...formData.chatHistory, formData.text],
       text: ''
-    });//*/
+    });
   }
 
   return (
