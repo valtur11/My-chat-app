@@ -20,6 +20,9 @@ function Layout({ children, date }) {
 
       </header>
       <main role = 'main'>
+        <Link href='/chat'>
+          <a>Chat now</a>
+        </Link>
         {children}
       </main>
       <footer className = 'pt-4 my-md-5 pt-md-5 border-top text-muted'>
