@@ -1,4 +1,4 @@
-const debug = require('debug')('createAuthMethods');
+const debug = require('debug')('createAuthMethods*');
 /**
  * Function returning all authentication services
  * @param {*} lib all dependecies (Dependecy injection)
@@ -61,6 +61,22 @@ const createAuthMethods = (lib) => {
         } else {
           return { msg , status: 500 };
         }
+      }
+    },
+    verifyToken(token) {
+      try {
+        const decoded = lib.jwt.verify(token, lib.env.JWT_SECRET);
+        debug(decoded);
+        if (decoded) {
+          return decoded;
+        } else {
+          throw new Error();
+        }
+      } catch (e) {
+
+        const error = new Error('Please Log In First');
+        error.status = 401;
+        throw error;
       }
     }
   };

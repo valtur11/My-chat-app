@@ -30,10 +30,20 @@ apiRouter.post('/login', async (req, res, next) => {
   }
 });
 
-apiRouter.post('/friends', async (req, res, next) => {
+apiRouter.post('/friends', (req, res,next) => {
   try {
-    //@TODO: get this email from auth middleware
-    req.decoded = { email: 'techie@techie.com' };
+    const authError = new Error('Please, login first');
+    authError.status = 401;
+    if(!req.headers.authorization) throw authError;
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = auth.verifyToken(token);
+    req.decoded = decoded;
+    next();
+  } catch (error) {
+    next(error);
+  }
+}, async (req, res, next) => {
+  try {
     const friend = await addFriend(req.decoded.email, req.body.email);
     res.status(200).json(friend);
   } catch (error) {
