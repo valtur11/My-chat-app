@@ -6,17 +6,22 @@ const socket = io.connect('http://192.168.1.17:8081');
 
 export default function Chat({data}) {
   const [formData, setFormData] = useState({
-    text: '',
-    chatHistory: []
+    text: ''
   });
+  const [chatHistory, setChatHistory] = useState([]);
+  const [isTyping, setTyping] = useState(false);
 
-  socket.on('chat1', text => {
-    setFormData({
-      ...formData,
-      chatHistory: [...formData.chatHistory, text]
+  socket.on('chat', text => {
+    setChatHistory([...chatHistory, text]);
+    socket.on('typing', () => {
+      setTyping(true);
+      setTimeout(() => setTyping(false), 1000);
     });
   });
 
+  function handleInput () {
+    socket.emit('typing');
+  }
   function handleInputChange(event) {
     const target = event.target;
     const value = target.name === 'isPasswordHidden' ? !target.checked : target.value;
@@ -29,17 +34,15 @@ export default function Chat({data}) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    socket.emit('chat2', formData.text);
-    setFormData({
-      chatHistory: [...formData.chatHistory, formData.text],
-      text: ''
-    });
+    socket.emit('chat', formData.text);
+    setChatHistory([...chatHistory, formData.text]);
+    setFormData({ text: '' });
   }
 
   return (
     <Layout date = {data}>
       <ul>
-        {formData.chatHistory.map((text, i) =>
+        {chatHistory.map((text, i) =>
           <li style={{listStyleType: 'none'}} key ={i}>
             {text}
           </li>
@@ -52,9 +55,12 @@ export default function Chat({data}) {
           type = 'text'
           value={formData.text}
           autoComplete = 'off'
-          onChange={handleInputChange} />
+          onChange={handleInputChange}
+          onInput={handleInput} />
         <button type='submit'>Send</button>
       </form>
+
+      {isTyping && (<p className='text-muted'>Someone is typing...</p>)}
     </Layout>
   );
 }
