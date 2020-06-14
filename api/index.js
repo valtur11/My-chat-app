@@ -5,22 +5,11 @@ const routes = require('./routes');
 const http = require('http');
 const server = http.createServer(app);
 const io = require('socket.io')(server, { origins: '*:*'});
+const io_connection = require('./routes/io_connection');
 
 app.use('/api', routes);
 
-io.on('connection', (socket) => {
-  console.log('a user connected');
-  socket.on('chat', (msg) => {
-    console.log('message: ' + msg);
-    socket.broadcast.emit('chat', msg);
-  });
-  socket.on('typing', () => {
-    socket.broadcast.emit('typing');
-  });
-  socket.on('disconnect', () => {
-    console.log('user disconnected');
-  });
-});
+io.on('connection', io_connection);
 
 server.listen(PORT, () => {
   debug(`Server with pid ${process.pid} started at PORT ${PORT}`);
