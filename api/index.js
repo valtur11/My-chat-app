@@ -10,9 +10,12 @@ app.use('/api', routes);
 
 io.on('connection', (socket) => {
   console.log('a user connected');
-  socket.on('chat2', (msg) => {
+  socket.on('chat', (msg) => {
     console.log('message: ' + msg);
-    socket.broadcast.emit('chat1', msg);
+    socket.broadcast.emit('chat', msg);
+  });
+  socket.on('typing', () => {
+    socket.broadcast.emit('typing');
   });
   socket.on('disconnect', () => {
     console.log('user disconnected');
