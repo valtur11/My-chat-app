@@ -19,7 +19,10 @@ const userSchema = Schema({
     required: true,
     minlength: 8,
     maxlength: 100
-  }
+  },
+  friends: [{
+    type: Schema.Types.ObjectId, ref: 'User'
+  }]
 });
 
 userSchema.pre('save', async function (next) {
