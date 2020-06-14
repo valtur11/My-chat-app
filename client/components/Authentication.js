@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-const base_api_url = 'http://localhost:8081/api';
+const base_api_url = 'http://192.168.1.17:8081/api';
 import PropTypes from 'prop-types';
 import Link from 'next/link';
 
