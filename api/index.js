@@ -24,30 +24,27 @@ function getKeyByValue(map, searchValue) {
 
 io.use((socket, next) => {
   try {
-    let token = (socket.request.headers['authorization']) ? socket.request.headers['authorization'].split(' ')[1] : next();
+    let token = socket.handshake.query.token;
     const decoded = auth.verifyToken(token);
-    console.log(decoded.email, socket.id);
     socket.username = decoded.email;
-    console.log(socket.username)
     users.set(socket.username, socket.id);
-    //socket.friends
     return next();
+    //socket.friends
   } catch (e) {
-    console.log('err')
     return next();
   }
 });
 io.on('connection', (socket) => {
   if(getKeyByValue(users, socket.id) === undefined){
-    // socket.disconnect();
+    // auth error
+    socket.disconnect();
   }
   //a user connected, retrieve its messages from the db.
   console.log('a user connected, sockets size:', users.size, socket.id);
   socket.on('chat', (msg) => {
     console.log('message: ' + msg);
-    messages.push({ author: socket.username, message: msg});
+    messages.push({ author: getKeyByValue(users, socket.id), message: msg});
     //if the socket is online, then emit, else save to the db.
-
     socket.broadcast.emit('chat', msg);
   });
 
