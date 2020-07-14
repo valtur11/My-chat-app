@@ -1,10 +1,17 @@
-import Layout from '../components/Layout';
+import Layout from '../../components/Layout';
 import PropTypes from 'prop-types';
 import io from 'socket.io-client';
-import React, { useState, useEffect } from 'react';
-const socket = io.connect('http://192.168.1.17:8081');
+import React, { useState } from 'react';
+import axios from 'axios';
+import configs from '../../config';
+const {base_api_url} = configs;
+import { useRouter } from 'next/router';
+import cookie from 'cookie';
 
-export default function Chat({data}) {
+export default function Chat({date}) {
+  let jwtToken;
+  // if(typeof window !== 'undefined') jwtToken = localStorage.getItem('token') || 'no-token';
+  const socket = io('http://192.168.1.17:8081');//http://192.168.1.17:8081?jwtToken
   const [formData, setFormData] = useState({
     text: ''
   });
@@ -17,6 +24,10 @@ export default function Chat({data}) {
       setTyping(true);
       setTimeout(() => setTyping(false), 1000);
     });
+  });
+
+  socket.on('error', (error) => {
+    setChatHistory([...chatHistory, error]);
   });
 
   function handleInput () {
@@ -34,13 +45,15 @@ export default function Chat({data}) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    socket.emit('chat', formData.text);
+    //socket.emit('chat', formData.text);
+    socket.emit('PM', 'authuser', formData.text);
     setChatHistory([...chatHistory, formData.text]);
     setFormData({ text: '' });
   }
 
   return (
-    <Layout date = {data}>
+    <Layout date = {date}>
+      <h1>{}</h1>
       <ul>
         {chatHistory.map((text, i) =>
           <li style={{listStyleType: 'none'}} key ={i}>
@@ -65,16 +78,26 @@ export default function Chat({data}) {
   );
 }
 
-export async function getStaticProps() {
-  const data = { currentYear: new Date().getFullYear() };
-
+export async function getServerSideProps(req) {
+  const cookies = cookie.parse(req.req.headers.cookie);
+  console.log('cookies are', cookies);
+  const ofUserId = '1t3789043487'; //the logged in user id.
+  const fromUserId = req.query.chat; // the route id here
+  axios.get(`${base_api_url}/api/messages/${ofUserId}?fromUserId=${fromUserId}`, {headers: {auth: cookies.token}})
+    .then(res => {console.log('200');})
+    //if no auth, then redirect to the signin form.
+    .catch(err => {console.log('err', err);});
+  //retrieve all messages of a given user and route id, then auhtorize
+  const date = { currentYear: new Date().getFullYear() };
   return {
     props: {
-      data
+      date,
+      id: 10,
+      messages: [{text: 'LoL'}]
     }
   };
 }
 
 Chat.propTypes = {
-  data: PropTypes.object
+  date: PropTypes.object
 };
