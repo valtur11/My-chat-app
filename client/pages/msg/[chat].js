@@ -80,13 +80,13 @@ export default function Chat({date}) {
 
 export async function getServerSideProps(req) {
   const cookies = cookie.parse(req.req.headers.cookie);
-  console.log('cookies are', cookies);
   const ofUserId = '1t3789043487'; //the logged in user id.
   const fromUserId = req.query.chat; // the route id here
-  axios.get(`${base_api_url}/messages/${ofUserId}?fromUserId=${fromUserId}`, {headers: {auth: cookies.token}})
-    .then(res => {console.log('200');})
+  const options = { headers: { Authorization: `Bearer ${cookies.token}`} };
+  axios.get(`${base_api_url}/messages/${ofUserId}?fromUserId=${fromUserId}`, options)
+    .then(res => {console.log('200'); console.log(res.data)})
     //if no auth, then redirect to the signin form.
-    .catch(err => {console.log('err', err);});
+    .catch(err => {console.log('err', err.message);});
   //retrieve all messages of a given user and route id, then auhtorize
   const date = { currentYear: new Date().getFullYear() };
   return {

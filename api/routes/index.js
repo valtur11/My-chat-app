@@ -6,6 +6,7 @@ const auth = require('../authentication');
 const errorHandler = require('./errorHandler');
 const cors = require('cors');
 const {addFriend} = require('../messaging/friends');
+const {getMessages} = require('../messaging/messages');
 
 connectDB();
 
@@ -30,7 +31,7 @@ apiRouter.post('/login', async (req, res, next) => {
   }
 });
 
-apiRouter.post('/friends', (req, res,next) => {
+apiRouter.use((req, res,next) => {
   try {
     const authError = new Error('Please, login first');
     authError.status = 401;
@@ -42,10 +43,22 @@ apiRouter.post('/friends', (req, res,next) => {
   } catch (error) {
     next(error);
   }
-}, async (req, res, next) => {
+});
+
+apiRouter.post('/friends', async (req, res, next) => {
   try {
     const friend = await addFriend(req.decoded.email, req.body.email);
     res.status(200).json(friend);
+  } catch (error) {
+    next(error);
+  }
+});
+
+apiRouter.get('/messages/:ofUserId', async (req, res, next) => {
+  try {
+    const messages = await getMessages(req.params.ofUserId, req.query.fromId);
+    res.json(messages);
+    //getMessages
   } catch (error) {
     next(error);
   }
