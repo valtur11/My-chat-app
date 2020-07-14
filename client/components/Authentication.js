@@ -28,7 +28,7 @@ function AuthForm ({ type }) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    axios.post(`${base_api_url}/${type}`, { ...formData })
+    axios.post(`/api/hello?type=${type}`, { ...formData })
       .then(function (response) {
         console.log('res', response);
         setFormData({
