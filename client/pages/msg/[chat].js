@@ -83,7 +83,7 @@ export async function getServerSideProps(req) {
   console.log('cookies are', cookies);
   const ofUserId = '1t3789043487'; //the logged in user id.
   const fromUserId = req.query.chat; // the route id here
-  axios.get(`${base_api_url}/api/messages/${ofUserId}?fromUserId=${fromUserId}`, {headers: {auth: cookies.token}})
+  axios.get(`${base_api_url}/messages/${ofUserId}?fromUserId=${fromUserId}`, {headers: {auth: cookies.token}})
     .then(res => {console.log('200');})
     //if no auth, then redirect to the signin form.
     .catch(err => {console.log('err', err);});
