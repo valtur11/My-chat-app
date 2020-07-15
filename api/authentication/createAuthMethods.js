@@ -25,7 +25,7 @@ const createAuthMethods = (lib) => {
     async signup(userDetails) {
       try {
         const User = await lib.user.create(userDetails);
-        const UserAndToken = createToken({ email: User.email });
+        const UserAndToken = createToken({ email: User.email, userId: User._id });
         return { data: {...UserAndToken}, status: 201 };
       } catch (error) {
         const msg = error.message;
@@ -48,7 +48,7 @@ const createAuthMethods = (lib) => {
         debug('isMatch is being called');
         const isMatch = await user.comparePassword(candidatePassword);
         if(isMatch){
-          const UserAndToken = createToken({email: user.email});
+          const UserAndToken = createToken({email: user.email, userId: user._id});
           return { data: { ...UserAndToken }, status: 200 };
         } else {
           throw { status: 400 };

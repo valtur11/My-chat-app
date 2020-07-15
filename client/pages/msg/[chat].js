@@ -5,17 +5,15 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import configs from '../../config';
 const {base_api_url} = configs;
-import { useRouter } from 'next/router';
 import cookie from 'cookie';
 
-export default function Chat({date}) {
-  let jwtToken;
+export default function Chat({date, messages}) {
   // if(typeof window !== 'undefined') jwtToken = localStorage.getItem('token') || 'no-token';
-  const socket = io('http://192.168.1.17:8081');//http://192.168.1.17:8081?jwtToken
+  const socket = io('http://192.168.1.17:8081');//random access token//http://192.168.1.17:8081?jwtToken
   const [formData, setFormData] = useState({
     text: ''
   });
-  const [chatHistory, setChatHistory] = useState([]);
+  const [chatHistory, setChatHistory] = useState(messages);
   const [isTyping, setTyping] = useState(false);
 
   socket.on('chat', text => {
@@ -55,9 +53,9 @@ export default function Chat({date}) {
     <Layout date = {date}>
       <h1>{}</h1>
       <ul>
-        {chatHistory.map((text, i) =>
-          <li style={{listStyleType: 'none'}} key ={i}>
-            {text}
+        {chatHistory.map((msg, i) =>
+          <li className={(messages[i-1] && messages[i-1].sender === msg.sender) ? 'bg-primary' : 'bg-secondary'} style={{listStyleType: 'none'}} key ={Date.parse(msg.createdAt)}>
+            {msg.text} | {new Date(msg.createdAt).toString()}
           </li>
         )}
       </ul>
@@ -78,22 +76,30 @@ export default function Chat({date}) {
   );
 }
 
-export async function getServerSideProps(req) {
-  const cookies = cookie.parse(req.req.headers.cookie);
-  const ofUserId = '1t3789043487'; //the logged in user id.
-  const fromUserId = req.query.chat; // the route id here
+export async function getServerSideProps(ctx) {
+  const {req, res} = ctx;
+  let messages = [];
+  const cookies = cookie.parse(req.headers.cookie);
+  const fromUserId = ctx.query.chat; // the route id here (if the route is /msg/3, then ctx.query.chat is 3)
   const options = { headers: { Authorization: `Bearer ${cookies.token}`} };
-  axios.get(`${base_api_url}/messages/${ofUserId}?fromUserId=${fromUserId}`, options)
-    .then(res => {console.log('200'); console.log(res.data)})
-    //if no auth, then redirect to the signin form.
-    .catch(err => {console.log('err', err.message);});
-  //retrieve all messages of a given user and route id, then auhtorize
+  //authorize and retrieve all messages of a given user and route id
+  await axios.get(`${base_api_url}/messages/${fromUserId}`, options)
+    .then(res => {
+      console.log('Ok.');
+      messages = res.data;
+    })
+    .catch(err => {
+      //if no auth, then redirect to the signin form.
+      console.log('err', err.message);
+      res.setHeader('location', '/');
+      res.statusCode = 302;
+      res.end();
+    });
   const date = { currentYear: new Date().getFullYear() };
   return {
     props: {
       date,
-      id: 10,
-      messages: [{text: 'LoL'}]
+      messages
     }
   };
 }
