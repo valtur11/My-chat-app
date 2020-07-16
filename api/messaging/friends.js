@@ -26,4 +26,9 @@ const addFriend = (emailActive, emailPassive) => {
     });
 };
 
-module.exports = {addFriend};
+const getFriends = async (email) => {
+  const foundUser = await User.findOne({email}).populate('friends');
+  return foundUser.friends;
+};
+
+module.exports = {addFriend, getFriends};

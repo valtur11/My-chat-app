@@ -5,7 +5,7 @@ const connectDB = require('../config/mongoose');
 const auth = require('../authentication');
 const errorHandler = require('./errorHandler');
 const cors = require('cors');
-const {addFriend} = require('../messaging/friends');
+const {addFriend, getFriends} = require('../messaging/friends');
 const {getMessages} = require('../messaging/messages');
 
 connectDB();
@@ -40,6 +40,15 @@ apiRouter.use((req, res,next) => {
     const decoded = auth.verifyToken(token);
     req.decoded = decoded;
     next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+apiRouter.get('/friends', async (req, res, next) => {
+  try {
+    const friends = await getFriends(req.decoded.email);
+    res.status(200).json(friends);
   } catch (error) {
     next(error);
   }
