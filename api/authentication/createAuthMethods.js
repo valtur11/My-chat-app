@@ -1,4 +1,4 @@
-const debug = require('debug')('createAuthMethods*');
+const debug = require('debug')('createAuthMethods');
 /**
  * Function returning all authentication services
  * @param {*} lib all dependecies (Dependecy injection)

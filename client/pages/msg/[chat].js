@@ -1,32 +1,38 @@
 import Layout from '../../components/Layout';
 import PropTypes from 'prop-types';
 import io from 'socket.io-client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import configs from '../../config';
 const {base_api_url} = configs;
 import cookie from 'cookie';
-
-export default function Chat({date, messages}) {
-  // if(typeof window !== 'undefined') jwtToken = localStorage.getItem('token') || 'no-token';
-  const socket = io('http://192.168.1.17:8081');//random access token//http://192.168.1.17:8081?jwtToken
+let socket;
+export default function Chat({date, messages, loggedInUserId, chatId}) {
+  useEffect(() =>{
+    socket = io(base_api_url.substr(0,24), {
+      query: {
+        loggedInUserId
+      }
+    });
+  }, []);
+  console.log(loggedInUserId);
+  useEffect(()=>{
+    socket.on('PM', text => {
+      socket.on('typing', () => {
+        setTyping(true);
+        setTimeout(() => setTyping(false), 1000);
+      });
+      console.log(chatHistory)
+    });
+    socket.on('error', (error) => {
+      setChatHistory([...chatHistory, error]);
+    });
+  });
   const [formData, setFormData] = useState({
     text: ''
   });
   const [chatHistory, setChatHistory] = useState(messages);
   const [isTyping, setTyping] = useState(false);
-
-  socket.on('chat', text => {
-    setChatHistory([...chatHistory, text]);
-    socket.on('typing', () => {
-      setTyping(true);
-      setTimeout(() => setTyping(false), 1000);
-    });
-  });
-
-  socket.on('error', (error) => {
-    setChatHistory([...chatHistory, error]);
-  });
 
   function handleInput () {
     socket.emit('typing');
@@ -44,8 +50,9 @@ export default function Chat({date, messages}) {
   function handleSubmit(event) {
     event.preventDefault();
     //socket.emit('chat', formData.text);
-    socket.emit('PM', 'authuser', formData.text);
-    setChatHistory([...chatHistory, formData.text]);
+    socket.emit('PM', chatId, formData.text);
+    setChatHistory([...chatHistory, {sender: loggedInUserId, text: formData.text, createdAt: Date.parse(new Date())}]);
+
     setFormData({ text: '' });
   }
 
@@ -54,7 +61,7 @@ export default function Chat({date, messages}) {
       <h1>{}</h1>
       <ul>
         {chatHistory.map((msg, i) =>
-          <li className={(messages[i-1] && messages[i-1].sender === msg.sender) ? 'bg-primary' : 'bg-secondary'} style={{listStyleType: 'none'}} key ={Date.parse(msg.createdAt)}>
+          <li className={msg.sender === loggedInUserId && 'bg-primary'} style={{listStyleType: 'none'}} key ={Date.parse(msg.createdAt) || i}>
             {msg.text} | {new Date(msg.createdAt).toString()}
           </li>
         )}
@@ -78,30 +85,39 @@ export default function Chat({date, messages}) {
 
 export async function getServerSideProps(ctx) {
   const {req, res} = ctx;
-  let messages = [];
-  const cookies = cookie.parse(req.headers.cookie);
-  const fromUserId = ctx.query.chat; // the route id here (if the route is /msg/3, then ctx.query.chat is 3)
-  const options = { headers: { Authorization: `Bearer ${cookies.token}`} };
-  //authorize and retrieve all messages of a given user and route id
-  await axios.get(`${base_api_url}/messages/${fromUserId}`, options)
-    .then(res => {
-      console.log('Ok.');
-      messages = res.data;
-    })
-    .catch(err => {
-      //if no auth, then redirect to the signin form.
-      console.log('err', err.message);
-      res.setHeader('location', '/');
-      res.statusCode = 302;
-      res.end();
-    });
-  const date = { currentYear: new Date().getFullYear() };
-  return {
-    props: {
-      date,
-      messages
-    }
-  };
+  try {
+    let loggedInUserId;
+    let messages = [];
+    if(!req.headers.cookie) throw new Error('Please, login first!');
+    const cookies = cookie.parse(req.headers.cookie);
+    if(!cookies.token) throw new Error('Please, login first!');
+    const fromUserId = ctx.query.chat; // the route id here (if the route is /msg/3, then ctx.query.chat is 3)
+    const options = { headers: { Authorization: `Bearer ${cookies.token}`} };
+    //authorize and retrieve all messages of a given user and route id
+    await axios.get(`${base_api_url}/messages/${fromUserId}`, options)
+      .then(res => {
+        loggedInUserId = res.data[0];
+        messages = res.data[1];
+      })
+      .catch(() => {
+        //if no auth, then redirect to the signin form.
+        throw new Error('Please, login first');
+      });
+    const date = { currentYear: new Date().getFullYear() };
+    return {
+      props: {
+        date,
+        messages,
+        loggedInUserId,
+        chatId: ctx.query.chat
+      }
+    };
+  } catch (e) {
+    res.setHeader('location', '/');
+    res.statusCode = 302;
+    res.end();
+    return {props:{}};
+  }
 }
 
 Chat.propTypes = {

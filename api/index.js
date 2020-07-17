@@ -5,16 +5,31 @@ const routes = require('./routes');
 const http = require('http');
 const server = http.createServer(app);
 const io = require('socket.io')(server);
-io.set('origins', '*:*'); //@TODO only to server
-// const io_connection = require('./routes/io_connection');
-
-const auth = require('./authentication');
-
+const Message = require('./models/message');
+/**
+ * Serving Express apiRouter
+ */
 app.use('/api', routes);
+
+/**
+ * Socket.io event handlers
+ * @TODO if the recepient is offline, then save the messages at the db.
+ */
+io.set('origins', '*:*'); //@TODO only to server
 
 let users = new Map();//nicknames
 let messages = [];
 
+/**
+ * utility function; getting object's key by value
+ */
+setInterval(120000, () => {
+  if(messages.length > 0){
+    //save messages at db
+    Message.create(messages);
+    messages = [];
+  }
+}); //2 minute interval
 function getKeyByValue(map, searchValue) {
   for (let [key, value] of map.entries()) {
     if (value === searchValue)
@@ -24,12 +39,11 @@ function getKeyByValue(map, searchValue) {
 
 io.use((socket, next) => {
   try {
-    let token = socket.handshake.query.token;
-    const decoded = auth.verifyToken(token);
-    socket.username = decoded.email;
-    users.set(socket.username, socket.id);
+    let loggedUserId = socket.handshake.query.loggedInUserId;
+    console.log('loggedUserid', loggedUserId);
+    if (loggedUserId) socket.loggedUserId = loggedUserId;
+    users.set(socket.loggedUserId, socket.id);
     return next();
-    //socket.friends
   } catch (e) {
     return next();
   }
@@ -49,8 +63,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('PM', (toUser, msg) => {
-    console.log(`PM to ${toUser} with message: ${msg} from ${getKeyByValue(users, socket.id)}`);
-    messages.push({ author: getKeyByValue(users, socket.id), message: msg});
+    console.log(`PM to ${toUser} with message: ${msg} from ${socket.loggedUserId}`);
+    messages.push({ sender: socket.loggedUserId, recepient: toUser, text: msg});
     //if the socket is online, then emit, else save to the db.
     const socketId = users.get(toUser);
     socketId ? io.to(socketId).emit('PM', msg) : socket.emit('offline');
@@ -66,6 +80,9 @@ io.on('connection', (socket) => {
   });
 });
 
+/**
+ * Listening for Express or Socket.io requests
+ */
 server.listen(PORT, () => {
   debug(`Server with pid ${process.pid} started at PORT ${PORT}`);
 });

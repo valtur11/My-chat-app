@@ -57,7 +57,7 @@ export default function Chat ({date}) {
         </div>
       }
       <ul>
-        { data && data.map(friend =>
+        { data && data.map && data.map(friend =>
           <li key={friend._id}><Link href={`/msg/${friend._id}`}><a> {friend.email}</a></Link></li>)
         }
       </ul>
