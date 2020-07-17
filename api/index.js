@@ -23,13 +23,13 @@ let messages = [];
 /**
  * utility function; getting object's key by value
  */
-setInterval(120000, () => {
+setInterval(() => {
   if(messages.length > 0){
     //save messages at db
     Message.create(messages);
     messages = [];
   }
-}); //2 minute interval
+}, 120000); //2 minute interval
 function getKeyByValue(map, searchValue) {
   for (let [key, value] of map.entries()) {
     if (value === searchValue)
@@ -55,6 +55,8 @@ io.on('connection', (socket) => {
   }
   //a user connected, retrieve its messages from the db.
   console.log('a user connected, sockets size:', users.size, socket.id);
+
+  //Deprecated
   socket.on('chat', (msg) => {
     console.log('message: ' + msg);
     messages.push({ author: getKeyByValue(users, socket.id), message: msg});
@@ -63,11 +65,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('PM', (toUser, msg) => {
+    const message = { sender: socket.loggedUserId, recepient: toUser, text: msg };
     console.log(`PM to ${toUser} with message: ${msg} from ${socket.loggedUserId}`);
-    messages.push({ sender: socket.loggedUserId, recepient: toUser, text: msg});
+    messages.push(message);
     //if the socket is online, then emit, else save to the db.
     const socketId = users.get(toUser);
-    socketId ? io.to(socketId).emit('PM', msg) : socket.emit('offline');
+    socketId ? io.to(socketId).emit('PM', message) : socket.emit('offline');
   });
 
   socket.on('typing', () => {
