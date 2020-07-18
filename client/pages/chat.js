@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export default function Chat ({date}) {
   const fetcher = url => axios.get(url).then(res => res.data);
-  const { data, error } = useSWR('http://localhost:3000/api/friends', fetcher);
+  const { data, error } = useSWR('/api/friends', fetcher);
   /* useEffect(() => {}, []);*/ //equivalent to componentDidMount
   const [formData, setFormData] = useState({
     email: '',
@@ -49,7 +49,7 @@ export default function Chat ({date}) {
   return (
     <Layout date={date||{currentYear: 2020}}>
       <h1>List of friends</h1>
-      {error && <div>Unexpected technical error. Please, come back later.</div>}
+      {error && <div>Unexpected technical error. {error.stack} {error.message} Please, come back later.</div>}
       {Array.isArray(data) && data.length === 0 && <div><span>You dont have any friends in your list yet. Click the Add new friend button below!</span></div>}
       {
         !data && <div className='spinner-border text-primary' role='status'>
