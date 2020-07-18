@@ -65,7 +65,8 @@ function AuthForm ({ type }) {
             name="email"
             type="email"
             value={formData.email}
-            onChange={handleInputChange} />
+            onChange={handleInputChange}
+            required />
         </div>
 
         <div className='form-group'>
@@ -77,7 +78,8 @@ function AuthForm ({ type }) {
               name="password"
               type={formData.isPasswordHidden ? 'password' : 'text'}
               value={formData.password}
-              onChange={handleInputChange} />
+              onChange={handleInputChange}
+              required/>
 
             <div className="input-group-append">
               <div className="input-group-text">
