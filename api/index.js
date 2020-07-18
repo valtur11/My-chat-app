@@ -29,7 +29,7 @@ setInterval(() => {
     Message.create(messages);
     messages = [];
   }
-}, 1000); //2 minute interval 120000
+}, 1000); //2 minute interval 120000 changed to 1 sec (1000ms)
 function getKeyByValue(map, searchValue) {
   for (let [key, value] of map.entries()) {
     if (value === searchValue)
