@@ -26,7 +26,7 @@ export default function Home({data}) {
               <img src='images/chat-app.png' className="card-img"/>
             </div>
             <div className="col-7">
-              <img src = 'images/ipad-1721428_1920.jpg' className = 'w-100'/>
+              <img src = 'images/pikwizard-0dd6cc2f66c868dbd12d805f9d9ba8b8.jpg' className = 'w-100'/>
             </div>
           </div>
         </div>
