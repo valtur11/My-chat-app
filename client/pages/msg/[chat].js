@@ -17,15 +17,16 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
   }, []);
   console.log(loggedInUserId);
   useEffect(()=>{
-    socket.on('PM', text => {
-      socket.on('typing', () => {
-        setTyping(true);
-        setTimeout(() => setTyping(false), 1000);
-      });
-      console.log(chatHistory)
+    socket.on('typing', () => {
+      setTyping(true);
+      setTimeout(() => setTyping(false), 1000);
+    });
+    socket.on('PM', obj => {
+      setChatHistory([...chatHistory, obj]);
+      console.log(chatHistory);
     });
     socket.on('error', (error) => {
-      setChatHistory([...chatHistory, error]);
+      console.log(error);
     });
   });
   const [formData, setFormData] = useState({
@@ -61,7 +62,7 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
       <h1>{}</h1>
       <ul>
         {chatHistory.map((msg, i) =>
-          <li className={msg.sender === loggedInUserId && 'bg-primary'} style={{listStyleType: 'none'}} key ={Date.parse(msg.createdAt) || i}>
+          <li className={msg.sender === loggedInUserId ? 'bg-primary' : 'bg-white'} style={{listStyleType: 'none'}} key ={Date.parse(msg.createdAt) || i}>
             {msg.text} | {new Date(msg.createdAt).toString()}
           </li>
         )}
