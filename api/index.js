@@ -29,7 +29,7 @@ setInterval(() => {
     Message.create(messages);
     messages = [];
   }
-}, 120000); //2 minute interval
+}, 1000); //2 minute interval 120000
 function getKeyByValue(map, searchValue) {
   for (let [key, value] of map.entries()) {
     if (value === searchValue)
@@ -65,7 +65,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('PM', (toUser, msg) => {
-    const message = { sender: socket.loggedUserId, recepient: toUser, text: msg };
+    const message = { sender: socket.loggedUserId, recepient: toUser, text: msg, createdAt: Date.parse(new Date()) };
     console.log(`PM to ${toUser} with message: ${msg} from ${socket.loggedUserId}`);
     messages.push(message);
     //if the socket is online, then emit, else save to the db.
