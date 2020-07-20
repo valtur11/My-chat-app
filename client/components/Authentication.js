@@ -28,6 +28,7 @@ function AuthForm ({ type }) {
 
   function handleSubmit(event) {
     event.preventDefault();
+    //error 500 undefined error?
     axios.post(`/api/hello?type=${type}`, { ...formData })
       .then(function (response) {
         console.log('res', response);
@@ -41,7 +42,7 @@ function AuthForm ({ type }) {
         console.error(error);
         setFormData({
           ...formData,
-          errorMessage: error.message || 'Something went wrong.',
+          errorMessage: error.response.data.message || 'Something went wrong.',
           successMessage: ''
         });
       });

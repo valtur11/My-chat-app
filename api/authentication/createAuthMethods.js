@@ -28,11 +28,12 @@ const createAuthMethods = (lib) => {
         const UserAndToken = createToken({ email: User.email, userId: User._id });
         return { data: {...UserAndToken}, status: 201 };
       } catch (error) {
-        const msg = error.message;
+        const message = error.message || 'Oops! Unexpected error.';
         if(error.code === 11000) {
-          return { status: 400, msg };
+          const message = 'This account is taken. You can Signup with another email.';
+          return { status: 400, message };
         } else {
-          return { status: 500, msg };
+          return { status: 500, message };
         }
       }
     },
@@ -51,15 +52,15 @@ const createAuthMethods = (lib) => {
           const UserAndToken = createToken({email: user.email, userId: user._id});
           return { data: { ...UserAndToken }, status: 200 };
         } else {
-          throw { status: 400 };
+          throw { status: 400, message: 'Invalid email or password.' };
         }
       } catch (error) {
-        const msg = error.message;
+        const message = error.message || 'Oops! Unexpected error.';
         if(error.status === 400){
           //throw error
-          return error;
+          return {...error, message};
         } else {
-          return { msg , status: 500 };
+          return { message , status: 500 };
         }
       }
     },
@@ -73,7 +74,6 @@ const createAuthMethods = (lib) => {
           throw new Error();
         }
       } catch (e) {
-
         const error = new Error('Please Log In First');
         error.status = 401;
         throw error;
