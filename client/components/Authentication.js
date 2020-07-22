@@ -3,6 +3,7 @@ import axios from 'axios';
 const base_api_url = 'http://192.168.1.17:8081/api';
 import PropTypes from 'prop-types';
 import Link from 'next/link';
+import Router from 'next/router';
 
 function AuthForm ({ type }) {
   const [formData, setFormData] = useState({
@@ -37,6 +38,7 @@ function AuthForm ({ type }) {
           errorMessage: '',
           successMessage: response.data
         });
+        setTimeout(goToMessagesList(), 3000);
       })
       .catch(function (error) {
         console.error(error);
@@ -46,6 +48,10 @@ function AuthForm ({ type }) {
           successMessage: ''
         });
       });
+  }
+
+  function goToMessagesList() {
+    Router.push('/chat');
   }
 
   return (
