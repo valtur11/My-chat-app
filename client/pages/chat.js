@@ -31,17 +31,18 @@ export default function Chat ({date}) {
     axios.post('/api/friends', { ...formData })
       .then(function (response) {
         console.log('res', response);
+        data.push(formData);
         setFormData({
           ...formData,
           errorMessage: '',
-          successMessage: response.data
+          successMessage: { email: formData.email, ...response.data }
         });
       })
       .catch(function (error) {
         console.error(error);
         setFormData({
           ...formData,
-          errorMessage: error.message || 'Something went wrong.',
+          errorMessage: error.response.data.message || 'Something went wrong.',
           successMessage: ''
         });
       });
