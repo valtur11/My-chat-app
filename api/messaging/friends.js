@@ -8,11 +8,11 @@ const addFriend = (emailActive, emailPassive) => {
   return Promise.all([User.findOne({email: emailActive}), User.findOne({email: emailPassive})])
     .then(async ([userActive, userPassive]) => {
       if(!userPassive) {
-        return { message: `There is no such account ${emailPassive}`};
+        throw { status: 400, errorType: 'no-such-account', message: `There is no such account ${emailPassive}`};
       }
       if(userActive && userPassive) {
         if(userActive.friends.includes(userPassive._id)) {
-          return { message: `already added ${emailPassive}`};
+          throw {status: 400,  message: `already added ${emailPassive}`};
         } else {
           userActive.friends.push(userPassive._id);
           await userActive.save();
