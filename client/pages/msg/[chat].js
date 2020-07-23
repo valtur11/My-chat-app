@@ -60,26 +60,28 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
   return (
     <Layout date = {date}>
       <h1>{}</h1>
-      <ul>
+      <div className='container bg-gradient-secondary'>
         {chatHistory.map((msg, i) =>
-          <li className={msg.sender === loggedInUserId ? 'bg-primary' : 'bg-white'} style={{listStyleType: 'none'}} key ={Date.parse(msg.createdAt) || i}>
-            {msg.text} | {new Date(msg.createdAt).toString()}
-          </li>
-        )}
-      </ul>
+          <div style={{listStyleType: 'none', color: 'white'}} key ={Date.parse(msg.createdAt) || i} className={msg.sender === loggedInUserId ? 'media d-flex justify-content-end' : 'media d-flex justify-content-start'} >
+            <div style={{}} className={msg.sender === loggedInUserId ? 'bg-primary' : 'bg-secondary'} >
+              {msg.text} | {new Date(msg.createdAt).getHours()}:{new Date(msg.createdAt).getMinutes()}
+            </div>
+          </div> )}
 
-      <form className = 'container' onSubmit = {handleSubmit}>
-        <input
-          name = 'text'
-          type = 'text'
-          value={formData.text}
-          autoComplete = 'off'
-          onChange={handleInputChange}
-          onInput={handleInput} />
-        <button type='submit'>Send</button>
-      </form>
+        <form className = 'form-inline' onSubmit = {handleSubmit}>
+          <input
+            name = 'text'
+            type = 'text'
+            value={formData.text}
+            autoComplete = 'off'
+            onChange={handleInputChange}
+            onInput={handleInput}
+            className='form-control'/>
+          <button className='btn btn-primary' type='submit'>Send</button>
+        </form>
 
-      {isTyping && (<p className='text-muted'>Someone is typing...</p>)}
+        {isTyping && (<p className='text-muted'>Someone is typing...</p>)}
+      </div>
     </Layout>
   );
 }
