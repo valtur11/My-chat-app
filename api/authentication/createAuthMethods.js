@@ -46,6 +46,7 @@ const createAuthMethods = (lib) => {
     async login(email, candidatePassword) {
       try {
         const user = await lib.user.findOne({ email });
+        if (user === null) throw {status: 400, message: 'Please, create an account first.'};
         debug('isMatch is being called');
         const isMatch = await user.comparePassword(candidatePassword);
         if(isMatch){
