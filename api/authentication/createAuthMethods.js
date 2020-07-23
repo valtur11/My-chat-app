@@ -31,9 +31,9 @@ const createAuthMethods = (lib) => {
         const message = error.message || 'Oops! Unexpected error.';
         if(error.code === 11000) {
           const message = 'This account is taken. You can Signup with another email.';
-          return { status: 400, message };
+          throw { status: 400, message };
         } else {
-          return { status: 500, message };
+          throw { status: 500, message };
         }
       }
     },
@@ -59,9 +59,9 @@ const createAuthMethods = (lib) => {
         const message = error.message || 'Oops! Unexpected error.';
         if(error.status === 400){
           //throw error
-          return {...error, message};
+          throw {...error, message};
         } else {
-          return { message , status: 500 };
+          throw { message , status: 500 };
         }
       }
     },
@@ -75,7 +75,7 @@ const createAuthMethods = (lib) => {
           throw new Error();
         }
       } catch (e) {
-        const error = new Error('Please Log In First');
+        const error = new Error('Session expired. Please, Login again.');
         error.status = 401;
         throw error;
       }

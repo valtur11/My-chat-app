@@ -15,6 +15,7 @@ apiRouter.use(bodyParser.json());
 
 apiRouter.post('/signup', async (req, res, next) => {
   try {
+    if(req.headers.authorization) throw { status: 400, message: 'Already logged in.'};
     const data = await auth.signup(req.body);
     res.status(data.status).json(data.data || data);
   } catch (error) {
@@ -24,6 +25,7 @@ apiRouter.post('/signup', async (req, res, next) => {
 
 apiRouter.post('/login', async (req, res, next) => {
   try {
+    if(req.headers.authorization) throw { status: 400, message: 'Already logged in.'};
     const data = await auth.login(req.body.email, req.body.password);
     res.status(data.status).json(data.data || data);
   } catch (error) {
