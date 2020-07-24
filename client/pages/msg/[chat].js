@@ -64,7 +64,7 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
         {chatHistory.map((msg, i) =>
           <div style={{listStyleType: 'none', color: 'white'}} key ={Date.parse(msg.createdAt) || i} className={msg.sender === loggedInUserId ? 'media d-flex justify-content-end' : 'media d-flex justify-content-start'} >
             <div style={{}} className={msg.sender === loggedInUserId ? 'bg-primary' : 'bg-secondary'} >
-              {msg.text} | {new Date(msg.createdAt).getHours()}:{new Date(msg.createdAt).getMinutes()}
+              {msg.text} | {new Date(msg.createdAt).toTimeString().split(' ')[0].substr(0, 5)}
             </div>
           </div> )}
 
