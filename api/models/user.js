@@ -20,6 +20,12 @@ const userSchema = Schema({
     minlength: 8,
     maxlength: 100
   },
+  blocked: [{
+    type: Schema.Types.ObjectId, ref: 'User'
+  }],
+  muted: [{
+    type: Schema.Types.ObjectId, ref: 'User'
+  }],
   friends: [{
     type: Schema.Types.ObjectId, ref: 'User'
   }],
