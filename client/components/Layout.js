@@ -21,7 +21,7 @@ function Layout({ children, date }) {
       </header>
       <main role = 'main'>
         <Link href='/chat'>
-          <a>Chat now</a>
+          <a><button className='btn btn-primary btn-large'>Chat now</button></a>
         </Link>
         {children}
       </main>
