@@ -19,8 +19,9 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
   useEffect(()=>{
     socket.on('typing', () => {
       setTyping(true);
-      setTimeout(() => setTyping(false), 1000);
+      setTyping(false);
     });
+
     socket.on('PM', obj => {
       setChatHistory([...chatHistory, obj]);
       console.log(chatHistory);
@@ -76,11 +77,11 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
             autoComplete = 'off'
             onChange={handleInputChange}
             onInput={handleInput}
-            className='form-control'/>
+            className='form-control'
+            required/>
           <button className='btn btn-primary' type='submit'>Send</button>
+          {isTyping && (<><span>Typing</span><div className="spinner-grow text-primary" role="status"><span className='sr-only'></span></div></>)}
         </form>
-
-        {isTyping && (<p className='text-muted'>Someone is typing...</p>)}
       </div>
     </Layout>
   );
