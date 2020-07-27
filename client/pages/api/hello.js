@@ -13,7 +13,8 @@ export default async (req, res) => {
       return res.status(200).json(response.data);
     })
     .catch(function (error) {
-      res.status(error.response.status).json(error.response.data.error);
-      console.error(error.response.data);
+      const status = (error && error.response) ? error.response.status : 500;
+      const data = (error && error.response) ? error.response.data.error : {};
+      res.status(status).json(data);
     });
 };
