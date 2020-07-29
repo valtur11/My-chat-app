@@ -77,6 +77,7 @@ const createAuthMethods = (lib) => {
       } catch (e) {
         const error = new Error('Session expired. Please, Login again.');
         error.status = 401;
+        error.code = 'session-expired';
         throw error;
       }
     }
