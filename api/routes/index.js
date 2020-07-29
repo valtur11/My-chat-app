@@ -35,6 +35,7 @@ apiRouter.use(cors()); // @Todo: Enable CORS using whitelist
 apiRouter.use(bodyParser.json());
 
 const triggerPush = (subscription, dataToSend) => {
+  console.log('subscription', subscription);
   return webpush.sendNotification(subscription, dataToSend)
     .then(console.log('200'))
     .catch((err) => {
@@ -56,7 +57,8 @@ const getSubscriptionsFromDatabase = () => {
       try{
         assert.equal(null, err);
         const db = client.db();
-        const subs = await db.collection('notification_subscriptions').find({});
+        const cursor = await db.collection('notification_subscriptions').find({});
+        const subs = cursor.toArray();
         resolve(subs);
       }catch(e){
         reject (e);
@@ -65,8 +67,8 @@ const getSubscriptionsFromDatabase = () => {
   });
 };
 
-apiRouter.post('/push', (req, res, next) => {
-  return getSubscriptionsFromDatabase()
+apiRouter.post('/push', async (req, res, next) => {
+  await getSubscriptionsFromDatabase()
     .then((subscriptions) => {
       let promiseChain = Promise.resolve();
       for (let i = 0; i < subscriptions.length; i++) {
