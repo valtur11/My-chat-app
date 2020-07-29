@@ -8,16 +8,15 @@ function Layout({ children, date }) {
       <Head>
         <title>My chat app</title>
         <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'></meta>
-        <link rel='icon' href='favicon.ico' />
+        <link rel='icon' href='/favicon.png' />
       </Head>
 
-      <header className = 'sticky-top align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm'>
-        <h5 className='my-0 mr-md-auto font-weight-normal'>
-          <Link href='/'>
-            <a style = {{textDecoration: 'none'}}> <img src='/chat.svg' style = {{padding: '0 1rem 0 1rem'}}/> My chat app </a>
+      <header className = 'sticky-top bg-white border-bottom shadow-sm'>
+        <nav className="navbar navbar-light bg-light">
+          <Link className="navbar-brand" href='/'>
+            <a> <img  src='/favicon.png' className='img-fluid' width='60' height='auto' /> <img  src='/profile.png' className='img-fluid' width='130' height='30' /> </a>
           </Link>
-        </h5>
-
+        </nav>
       </header>
       <main role = 'main'>
         <Link href='/chat'>
@@ -29,7 +28,7 @@ function Layout({ children, date }) {
         <div className = 'container'>
           <p> <a href = '#'> Privacy Policy </a> </p>
           <p> <a href = '#'> Terms of Service </a> </p>
-          <p> &copy; {date.currentYear} My chat app. Created by <a href = 'https://valentinratchev.com'> Valentin Ratchev </a> </p>
+          <p> &copy; {date.currentYear} <img  src='/profile.png' className='img-fluid' width='130' height='30' /> Created by <a href = 'https://valentinratchev.com'> Valentin Ratchev </a> </p>
         </div>
       </footer>
     </>
