@@ -4,7 +4,8 @@ import io from 'socket.io-client';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import configs from '../../config';
-const {base_api_url} = configs;
+const {base_api_url, APP_SERVER_KEY} = configs;
+
 import cookie from 'cookie';
 let socket;
 export default function Chat({date, messages, loggedInUserId, chatId}) {
@@ -15,7 +16,6 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
       }
     });
   }, []);
-  console.log(loggedInUserId);
   useEffect(()=>{
     socket.on('typing', () => {
       setTyping(true);
@@ -30,6 +30,7 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
       console.log(error);
     });
   });
+
   const [formData, setFormData] = useState({
     text: ''
   });
@@ -58,9 +59,78 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
     setFormData({ text: '' });
   }
 
+  const askPermission = () => {
+    return new Promise((resolve, reject) => {
+      const permissionResult = Notification.requestPermission((result) => {
+        resolve(result);
+      });
+      if (permissionResult) {
+        permissionResult.then(resolve, reject)
+      }
+    })
+      .then((permissionResult) => {
+        if (permissionResult !== 'granted') {
+          throw new Error('Permission denied');
+        }
+      });
+  };
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
+
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+
+    for (let i = 0; i < rawData.length; ++i) {
+      outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+  }
+
+  const sendToServer = (subscription) => {
+    console.log(subscription);
+    return axios.post('/api/subscription', subscription)
+      .then((res) => {
+        if (!res.status === 200) {
+          throw new Error('An error occurred');
+        }
+        return res.data;
+      })
+      .then((resData) => {
+        if (!(resData.data && resData.data.success)) {
+          throw new Error('An error occurred');
+        }
+      });
+  };
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          askPermission().then(() => {
+            const options = {
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(APP_SERVER_KEY)
+            };
+            return registration.pushManager.subscribe(options);
+          })
+            .then((pushSubscription) => {
+              // we got the pushSubscription object
+              const subscription = pushSubscription;
+              sendToServer(subscription);
+            }); })
+        .catch(err => console.error('Service worker registration failed', err));
+    } else {
+      console.log('Service worker not supported');
+    }
+  }, []);
+
   return (
     <Layout date = {date}>
-      <h1>{}</h1>
+      <h1><button className='btn btn-primary' type='button' onClick={askPermission}>Notify me for incoming messages</button></h1>
       <div className='container bg-gradient-secondary'>
         {chatHistory.map((msg, i) =>
           <div style={{listStyleType: 'none', color: 'white'}} key ={Date.parse(msg.createdAt) || i} className={msg.sender === loggedInUserId ? 'media d-flex justify-content-end' : 'media d-flex justify-content-start'} >

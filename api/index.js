@@ -1,3 +1,5 @@
+const path = require('path');
+require('dotenv').config();
 const app = require('express')();
 const PORT = 8081 || process.env.PORT;
 const debug = require('debug')('My_chat_app: index.js *');
