@@ -6,10 +6,11 @@ import { serialize } from 'cookie';
 //use webserver for everything
 export default async (req, res) => {
   const type = req.query.type;
+  const options = { headers: { Authorization: `Bearer ${req.cookies.token||''}`} };
   //then set the auth header from the cookie
-  await axios.post(`${base_api_url}/${type}`, req.body, {headers: {Authorization: req.cookies.token || ''}})
+  await axios.post(`${base_api_url}/${type}`, req.body, options)
     .then(function (response) {
-      res.setHeader('Set-Cookie', serialize('token', response.data.token, { path: '/', httpOnly: true, maxAge: 240 }));
+      res.setHeader('Set-Cookie', serialize('token', response.data.token, { path: '/', httpOnly: true, maxAge: 240, sameSite: 'strict'}));
       return res.status(200).json(response.data);
     })
     .catch(function (error) {
