@@ -9,15 +9,14 @@ self.addEventListener('push', function(event) {
   const showLocalNotification = (title, body, swRegistration) => {
     const options = {
       body,
+      icon: '/favicon.png'
       // here you can add more properties like icon, image, vibrate, etc.
     };
-    //swRegistration.showNotification(title, options);
-    const promiseChain = self.registration.showNotification('Hey!');
-    event.waitUntil(promiseChain);
+    swRegistration.showNotification(title, options);
   };
   if (event.data) {
-    console.log('Push event!! ', event.data.text());
-    showLocalNotification('Yolo', event.data.text(), self.registration);
+    console.log('Push event!! ', event.data);
+    showLocalNotification('New message', event.data.text(), self.registration);
   } else {
     console.log('Push event but no data');
   }
