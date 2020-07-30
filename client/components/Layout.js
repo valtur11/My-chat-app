@@ -2,9 +2,16 @@ import Head from 'next/head';
 import Link from 'next/link';
 import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
+import axios from 'axios';
 
 function Layout({ children, date }) {
   const router = useRouter();
+
+  async function logout() {
+    await axios.get('/api/hello?type=logout')
+      .then(() => router.push('/'))
+      .catch(() => router.push(`${router.pathname}?error=cannot-set-cookie`));
+  }
 
   return (
     <>
@@ -19,12 +26,14 @@ function Layout({ children, date }) {
           <Link href='/'>
             <a className="navbar-brand"> <img src='/favicon.png' className='img-fluid' width='60' height='auto' /> <img  src='/profile.png' className='img-fluid' width='130' height='30' /> </a>
           </Link>
-          <ul className="d-md-flex d-block flex-row mx-md-auto mx-0 navbar-nav">
+          <ul className="d-flex flex-row align-baseline mx-md-auto navbar-nav justify-content-center flex-wrap">
             <li className={router.pathname === '/chat' ? 'nav-item active' : 'nav-item'}>
               <Link href='/chat'>
-                <a className='nav-link'><button className='btn btn-primary btn-large'>Chat now</button></a>
+                <button type='button' className='btn btn-primary'>Chat now</button>
               </Link>
-
+            </li>
+            <li className='mx-5'>
+              <button type='button' className='btn btn-primary' onClick={logout}>Log out</button>
             </li>
           </ul>
         </nav>
