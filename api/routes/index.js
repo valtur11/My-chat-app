@@ -8,6 +8,7 @@ const cors = require('cors');
 const {addFriend, getFriends} = require('../messaging/friends');
 const {getMessages} = require('../messaging/messages');
 const webpush = require('web-push');
+const debug = require('debug')('index routes*');
 
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
@@ -91,7 +92,6 @@ apiRouter.post('/push', async (req, res, next) => {
       return res.json({ data: { success: true } });
     })
     .catch(err => {
-      console.log(err)
       return next({
         error: {
           status: 500,
@@ -138,28 +138,33 @@ apiRouter.use((req, res,next) => {
 });
 
 apiRouter.post('/subscription', (req, res, next) => {
-  if (!req.body || !req.body.endpoint) {
-    return next({
-      id: 'no-endpoint',
-      message: 'Subscription must have an endpoint',
-      status: 400
-    });
-  }
+  try {
+    if (!req.body || !req.body.endpoint) {
+      return next({
+        id: 'no-endpoint',
+        message: 'Subscription must have an endpoint',
+        status: 400
+      });
+    }
 
-  // Use connect method to connect to the Server
-  MongoClient.connect(url, { useUnifiedTopology: true }, function(err, client) {
-    assert.equal(null, err);
-    const db = client.db();
-    return db.collection('notification_subscriptions').insertOne(req.body)
-      .then((subscriptionId) => {
+    return MongoClient.connect(url, { useUnifiedTopology: true }, async function(err, client) {
+      try {
+        if(err) throw err;
+        const db = client.db();
+        await db.collection('notification_subscriptions').createIndex( { endpoint: 1 }, {unique:true} );
+        debug('Right before insertion');
+        await db.collection('notification_subscriptions').insertOne(req.body);
         res.json({ data: { success: true }});
         return client.close();
-      })
-      .catch((err) => {
-        console.log(err);
-        next({ status: 500, code: 'unable-to-save-subscription', message: 'Subscription received but failed to save it'});
-      });
-  });
+      } catch(error) {
+        (error.code === 11000) ? next({status: 400, code: error.code, message: 'Already subscribed'})
+          : next({ status: 500, code: 'unable-to-save-subscription', message: 'Subscription received but failed to save it'});
+        return client.close();
+      }
+    });
+  } catch(e){
+    next(e);
+  }
 });
 
 apiRouter.get('/friends', async (req, res, next) => {
