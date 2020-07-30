@@ -8,7 +8,7 @@ export default async (req, res) => {
   const type = req.query.type;
   if (type === 'logout')  {
     try {
-      res.setHeader('Set-Cookie', serialize('token', req.cookies.token, { path: '/', httpOnly: true, maxAge: 0, sameSite: 'strict', secure: 'true'}));
+      res.setHeader('Set-Cookie','token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
       return res.status(200).json({message: 'Logged out.'});
     } catch (e){
       return res.status(500).json({error: { status: 500, code: 'cannot-set-cookies', message: 'Can\'t logout'}});

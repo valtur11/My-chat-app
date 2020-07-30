@@ -1,7 +1,7 @@
 import Layout from '../components/Layout';
 import axios from 'axios';
 import useSWR from 'swr';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import Link from 'next/link';
 
 export default function Chat ({date}) {
@@ -47,11 +47,12 @@ export default function Chat ({date}) {
         });
       });
   }
+  if (data && error) data.length = 0;
   return (
     <Layout date={date||{currentYear: 2020}}>
       <h1>List of friends</h1>
       {error &&  <div className='alert alert-danger' role="alert">{ error.response.data.message} <Link href='/'><a>Go back to homepage</a></Link> </div>}
-      {Array.isArray(data) && data.length === 0 && <div><span>You dont have any friends in your list yet. Click the Add new friend button below!</span></div>}
+      {Array.isArray(data) && data.length === 0 && !error && <div><span>You dont have any friends in your list yet. Click the Add new friend button below!</span></div>}
       {
         !error && !data && <div className='spinner-border text-primary' role='status'>
           <span className='sr-only'>Loading...</span>
