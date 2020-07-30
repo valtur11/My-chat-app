@@ -50,7 +50,7 @@ export default function Chat ({date}) {
   return (
     <Layout date={date||{currentYear: 2020}}>
       <h1>List of friends</h1>
-      {error && <div>Unexpected technical error. {error.stack} {error.message} Please, come back later.</div>}
+      {error &&  <div className='alert alert-danger' role="alert">{ error.response.data.message} <Link href='/'><a>Go back to homepage</a></Link> </div>}
       {Array.isArray(data) && data.length === 0 && <div><span>You dont have any friends in your list yet. Click the Add new friend button below!</span></div>}
       {
         !data && <div className='spinner-border text-primary' role='status'>
