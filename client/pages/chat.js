@@ -53,7 +53,7 @@ export default function Chat ({date}) {
       {error &&  <div className='alert alert-danger' role="alert">{ error.response.data.message} <Link href='/'><a>Go back to homepage</a></Link> </div>}
       {Array.isArray(data) && data.length === 0 && <div><span>You dont have any friends in your list yet. Click the Add new friend button below!</span></div>}
       {
-        !data && <div className='spinner-border text-primary' role='status'>
+        !error && !data && <div className='spinner-border text-primary' role='status'>
           <span className='sr-only'>Loading...</span>
         </div>
       }
