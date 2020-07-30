@@ -14,7 +14,7 @@ function Layout({ children, date }) {
         <link rel="icon" type="image/png" href="/favicon.png" />
       </Head>
 
-      <header className = 'border-bottom shadow-sm bg-white'>
+      <header className = 'sticky-top border-bottom shadow-sm bg-white'>
         <nav className="navbar sticky-top navbar-light bg-light">
           <Link href='/'>
             <a className="navbar-brand"> <img src='/favicon.png' className='img-fluid' width='60' height='auto' /> <img  src='/profile.png' className='img-fluid' width='130' height='30' /> </a>
