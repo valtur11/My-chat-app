@@ -46,6 +46,13 @@ const triggerPush = (subscription, dataToSend) => {
           db.collection('notification_subscriptions').deleteOne({_id: subscription._id});
           client.close();
         });
+      } else if(err.code === 'EAI_AGAIN') {
+        MongoClient.connect(url, { useUnifiedTopology: true }, function(err, client) {
+          assert.equal(null, err);
+          const db = client.db();
+          db.collection('notification_subscriptions').deleteOne({_id: subscription._id});
+          client.close();
+        });
       } else {
         console.log('Subscription is no longer valid: ', err);
       }
@@ -57,11 +64,12 @@ const getSubscriptionsFromDatabase = () => {
       try{
         assert.equal(null, err);
         const db = client.db();
-        const cursor = await db.collection('notification_subscriptions').find({});
-        const subs = cursor.toArray();
+        const subs = await db.collection('notification_subscriptions').find({}).toArray();
         resolve(subs);
       }catch(e){
         reject (e);
+      } finally {
+        client.close();
       }
     });
   });
@@ -74,7 +82,7 @@ apiRouter.post('/push', async (req, res, next) => {
       for (let i = 0; i < subscriptions.length; i++) {
         const subscription = subscriptions[i];
         promiseChain = promiseChain.then(() => {
-          return triggerPush(subscription, 'lol');
+          return triggerPush(subscription, 'That is a new message');
         });
       }
       return promiseChain;
@@ -83,6 +91,7 @@ apiRouter.post('/push', async (req, res, next) => {
       return res.json({ data: { success: true } });
     })
     .catch(err => {
+      console.log(err)
       return next({
         error: {
           status: 500,
