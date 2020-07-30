@@ -31,3 +31,5 @@ yarn-error.log*
 
 #config file
 config.js
+#assets
+styles/images
