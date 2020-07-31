@@ -1,5 +1,5 @@
 const Message = require('../models/message');
-
+const User = require('../models/user');
 const getMessages = async (recepient, sender) => {
   function getDayMonthYearString(iso_Date_string) {
     const date = new Date(iso_Date_string);
@@ -8,7 +8,16 @@ const getMessages = async (recepient, sender) => {
     const year = date.getUTCFullYear();
     return `${day}/${month}/${year}`;
   }
-  const messages = await Message.find({ recepient: { $in: [recepient, sender]}, sender : { $in: [recepient, sender]}}).limit(100);
+  const [recepientBlocks, senderBlocks, messages] = await Promise.all([
+    await User.FindOne({_id: recepient}, {blocked: 1}),
+    await User.FindOne({_id: sender}, {blocked: 1}),
+    await Message.find({ recepient: { $in: [recepient, sender]}, sender : { $in: [recepient, sender]}}).limit(100)
+  ])
+    .then(vals => [vals[0].blocked, vals[1].blocked, vals[2]])
+    .catch(err => { throw err; });
+  const isBlockedR = recepientBlocks.find(el => el === sender);
+  const isBlockedS = senderBlocks.find(el => el === recepient);
+  if(isBlockedR || isBlockedS) throw { status: 403, message: 'User banned or blocked'};
   let messagesByDay = []; // [Day1,Day2,Day3, [Day, [message(val)]]]
   let byDayI = -1;
   let lastISOString = new Date(0).toISOString();
