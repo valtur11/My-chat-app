@@ -29,7 +29,5 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-#config file
-config.js
 #assets
 styles/images
