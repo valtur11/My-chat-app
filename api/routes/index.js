@@ -15,7 +15,7 @@ const assert = require('assert');
 const { resolve } = require('path');
 
 // Connection URL
-const url = 'mongodb://localhost:27017/my-chat-app';
+const url = process.env.MONGO_URL || 'mongodb://localhost:27017/my-chat-app';
 
 const vapidKeys = {
   publicKey: process.env.VAPID_PUBLIC_KEY,

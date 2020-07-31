@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const dbUri = 'mongodb://localhost:27017/my-chat-app';
+const dbUri = process.env.MONGO_URL || 'mongodb://localhost:27017/my-chat-app';
 
 function startMongooseConnection() {
   //@todo make this conn function
