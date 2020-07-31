@@ -195,6 +195,7 @@ apiRouter.get('/messages/:fromUserId', async (req, res, next) => {
     res.json([req.decoded.userId, [...messages]]);
     //getMessages
   } catch (error) {
+    debug(error);
     next(error);
   }
 });
