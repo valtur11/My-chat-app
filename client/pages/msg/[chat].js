@@ -65,7 +65,7 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
         resolve(result);
       });
       if (permissionResult) {
-        permissionResult.then(resolve, reject)
+        permissionResult.then(resolve, reject);
       }
     })
       .then((permissionResult) => {
@@ -131,9 +131,9 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
   return (
     <Layout date = {date}>
       <h1><button className='btn btn-primary' type='button' onClick={askPermission}>Notify me for incoming messages</button></h1>
-      <div className='container bg-gradient-secondary'>
+      <div className='container bg-gradient-primary'>
         {chatHistory.map((msg, i) =>
-          <div style={{listStyleType: 'none', color: 'white'}} key ={Date.parse(msg.createdAt) || i} className={msg.sender === loggedInUserId ? 'media d-flex justify-content-end' : 'media d-flex justify-content-start'} >
+          <div style={{listStyleType: 'none', color: 'white'}} key ={msg._id || i} className={msg.sender === loggedInUserId ? 'media d-flex justify-content-end' : 'media d-flex justify-content-start'} >
             <div style={{}} className={msg.sender === loggedInUserId ? 'bg-primary' : 'bg-secondary'} >
               {msg.text} | {new Date(msg.createdAt).toTimeString().split(' ')[0].substr(0, 5)}
             </div>

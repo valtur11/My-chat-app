@@ -9,7 +9,7 @@ const {addFriend, getFriends} = require('../messaging/friends');
 const {getMessages} = require('../messaging/messages');
 const webpush = require('web-push');
 const debug = require('debug')('index routes*');
-
+const User = require('../models/user');
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 const { resolve } = require('path');
@@ -80,13 +80,14 @@ const getSubscriptionsFromDatabase = (query) => {
 apiRouter.post('/push', async (req, res, next) => {
   debug('Push');
   const search = req.body.recepient ? {userId: req.body.recepient} : {};
-  await getSubscriptionsFromDatabase(search)
-    .then((subscriptions) => {
+  await Promise.all([User.findOne({_id: req.body.sender}), getSubscriptionsFromDatabase(search)])
+    .then(([sender, subscriptions]) => {
       let promiseChain = Promise.resolve();
       for (let i = 0; i < subscriptions.length; i++) {
         const subscription = subscriptions[i];
         promiseChain = promiseChain.then(() => {
-          return triggerPush(subscription, JSON.stringify(req.body) || 'That is a new message');
+          debug(JSON.stringify({...req.body, senderEmail: sender.email}));
+          return triggerPush(subscription, JSON.stringify({...req.body, senderEmail: sender.email}) || 'That is a new message');
         });
       }
       return promiseChain;

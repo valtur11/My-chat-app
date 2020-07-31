@@ -8,9 +8,9 @@
 self.addEventListener('push', function(event) {
   const showLocalNotification = (title, message, swRegistration) => {
     const options = {
-      body: `You got new message from ${message.sender} with text ${message.text}`,
+      body: `You got new message from ${message.senderEmail} with text ${message.text}`,
       icon: '/favicon.png',
-      url: `/msg/${message.sender}`
+      url: `http://localhost:3000/msg/${message.sender}`
       // here you can add more properties like icon, image, vibrate, url...
     };
     swRegistration.showNotification(title, options);
