@@ -10,7 +10,7 @@ import cookie from 'cookie';
 let socket;
 export default function Chat({date, messages, loggedInUserId, chatId}) {
   useEffect(() =>{
-    socket = io(base_api_url.substr(0,24), {
+    socket = io(base_api_url.slice(0, -4), {
       query: {
         loggedInUserId
       }
