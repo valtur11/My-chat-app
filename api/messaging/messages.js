@@ -1,5 +1,6 @@
 const Message = require('../models/message');
 const User = require('../models/user');
+
 const getMessages = async (recepient, sender) => {
   function getDayMonthYearString(iso_Date_string) {
     const date = new Date(iso_Date_string);
@@ -9,8 +10,8 @@ const getMessages = async (recepient, sender) => {
     return `${day}/${month}/${year}`;
   }
   const [recepientBlocks, senderBlocks, messages] = await Promise.all([
-    await User.FindOne({_id: recepient}, {blocked: 1}),
-    await User.FindOne({_id: sender}, {blocked: 1}),
+    await User.findOne({_id: recepient}, {blocked: 1}),
+    await User.findOne({_id: sender}, {blocked: 1}),
     await Message.find({ recepient: { $in: [recepient, sender]}, sender : { $in: [recepient, sender]}}).limit(100)
   ])
     .then(vals => [vals[0].blocked, vals[1].blocked, vals[2]])
