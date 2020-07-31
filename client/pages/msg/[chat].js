@@ -50,12 +50,24 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
     });
   }
 
+  function getDayMonthYearString() {
+    const date = new Date();
+    const day = date.getUTCDate();
+    const month = date.getUTCMonth() + 1;
+    const year = date.getUTCFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
     //socket.emit('chat', formData.text);
     socket.emit('PM', chatId, formData.text);
     const tmpHis = [...chatHistory];
-    tmpHis[chatHistory.length-1][1].push({sender: loggedInUserId, text: formData.text, createdAt: Date.parse(new Date())});
+    if(tmpHis.length===0){
+      tmpHis[0] = [getDayMonthYearString(), [{sender: loggedInUserId, text: formData.text, createdAt: Date.parse(new Date())}]];
+    } else {
+      tmpHis[chatHistory.length-1][1].push({sender: loggedInUserId, text: formData.text, createdAt: Date.parse(new Date())});
+    }
     setChatHistory(tmpHis);
 
     setFormData({ text: '' });
@@ -180,6 +192,7 @@ export async function getServerSideProps(ctx) {
       .then(res => {
         loggedInUserId = res.data[0];
         messages = res.data[1];
+        console.log(messages);
       })
       .catch((e) => {
         console.log(e);
