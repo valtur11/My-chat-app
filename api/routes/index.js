@@ -108,7 +108,7 @@ apiRouter.post('/push', async (req, res, next) => {
 
 apiRouter.post('/signup', async (req, res, next) => {
   try {
-    if(req.headers.authorization) throw { status: 400, message: 'Already logged in.'};
+    if(req.headers.authorization.split(' ')[1]) throw { status: 400, message: 'Already logged in.'};
     const data = await auth.signup(req.body);
     res.status(data.status).json(data.data || data);
   } catch (error) {
