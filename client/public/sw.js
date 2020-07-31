@@ -6,17 +6,19 @@
 // to Array buffer which is needed by the subscription option
 
 self.addEventListener('push', function(event) {
-  const showLocalNotification = (title, body, swRegistration) => {
+  const showLocalNotification = (title, message, swRegistration) => {
     const options = {
-      body,
-      icon: '/favicon.png'
-      // here you can add more properties like icon, image, vibrate, etc.
+      body: `You got new message from ${message.sender} with text ${message.text}`,
+      icon: '/favicon.png',
+      url: `/msg/${message.sender}`
+      // here you can add more properties like icon, image, vibrate, url...
     };
     swRegistration.showNotification(title, options);
   };
   if (event.data) {
     console.log('Push event!! ', event.data);
-    showLocalNotification('New message', event.data.text(), self.registration);
+    console.log(event.data);
+    showLocalNotification('New message', JSON.parse(event.data.text()), self.registration);
   } else {
     console.log('Push event but no data');
   }

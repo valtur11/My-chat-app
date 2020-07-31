@@ -36,40 +36,41 @@ apiRouter.use(cors()); // @Todo: Enable CORS using whitelist
 apiRouter.use(bodyParser.json());
 
 const triggerPush = (subscription, dataToSend) => {
-  console.log('subscription', subscription);
   return webpush.sendNotification(subscription, dataToSend)
     .then(console.log('200'))
     .catch((err) => {
       if (err.statusCode === 410) {
-        MongoClient.connect(url, { useUnifiedTopology: true }, function(err, client) {
+        debug(410);
+        /* MongoClient.connect(url, { useUnifiedTopology: true }, function(err, client) {
           assert.equal(null, err);
           const db = client.db();
           db.collection('notification_subscriptions').deleteOne({_id: subscription._id});
           client.close();
-        });
+        });*/
       } else if(err.code === 'EAI_AGAIN') {
-        MongoClient.connect(url, { useUnifiedTopology: true }, function(err, client) {
+        debug('EAI_AGAIN');
+        /* MongoClient.connect(url, { useUnifiedTopology: true }, function(err, client) {
           assert.equal(null, err);
           const db = client.db();
           db.collection('notification_subscriptions').deleteOne({_id: subscription._id});
           client.close();
-        });
+        });*/
       } else {
-        console.log('Subscription is no longer valid: ', err);
+        debug('Subscription is no longer valid');
       }
     });
 };
-const getSubscriptionsFromDatabase = () => {
+const getSubscriptionsFromDatabase = (query) => {
   return new Promise((resolve, reject) => {
     MongoClient.connect(url, { useUnifiedTopology: true }, async function(err, client) {
       try{
         assert.equal(null, err);
         const db = client.db();
-        const subs = await db.collection('notification_subscriptions').find({}).toArray();
+        const subs = await db.collection('notification_subscriptions').find(query).toArray();
         resolve(subs);
+        client.close();
       }catch(e){
         reject (e);
-      } finally {
         client.close();
       }
     });
@@ -77,13 +78,15 @@ const getSubscriptionsFromDatabase = () => {
 };
 
 apiRouter.post('/push', async (req, res, next) => {
-  await getSubscriptionsFromDatabase()
+  debug('Push');
+  const search = req.body.recepient ? {userId: req.body.recepient} : {};
+  await getSubscriptionsFromDatabase(search)
     .then((subscriptions) => {
       let promiseChain = Promise.resolve();
       for (let i = 0; i < subscriptions.length; i++) {
         const subscription = subscriptions[i];
         promiseChain = promiseChain.then(() => {
-          return triggerPush(subscription, 'That is a new message');
+          return triggerPush(subscription, JSON.stringify(req.body) || 'That is a new message');
         });
       }
       return promiseChain;
@@ -153,7 +156,7 @@ apiRouter.post('/subscription', (req, res, next) => {
         const db = client.db();
         await db.collection('notification_subscriptions').createIndex( { endpoint: 1 }, {unique:true} );
         debug('Right before insertion');
-        await db.collection('notification_subscriptions').insertOne(req.body);
+        await db.collection('notification_subscriptions').insertOne({userId: req.decoded.userId, ...req.body});
         res.json({ data: { success: true }});
         return client.close();
       } catch(error) {

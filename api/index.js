@@ -8,6 +8,7 @@ const http = require('http');
 const server = http.createServer(app);
 const io = require('socket.io')(server);
 const Message = require('./models/message');
+const axios = require('axios');
 /**
  * Serving Express apiRouter
  */
@@ -72,7 +73,13 @@ io.on('connection', (socket) => {
     messages.push(message);
     //if the socket is online, then emit, else save to the db.
     const socketId = users.get(toUser);
-    socketId ? io.to(socketId).emit('PM', message) : socket.emit('offline');
+    if(socketId) {
+      io.to(socketId).emit('PM', message);
+    } else{
+      console.log('offline');
+      socket.emit('offline');
+      axios.post(`${process.env.base_api_url}/push`, message).then(() => console.log('OK.PUSHED.')).catch(e => console.log(e));
+    }
   });
 
   socket.on('typing', () => {
