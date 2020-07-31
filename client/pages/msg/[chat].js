@@ -54,7 +54,9 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
     event.preventDefault();
     //socket.emit('chat', formData.text);
     socket.emit('PM', chatId, formData.text);
-    setChatHistory([...chatHistory, {sender: loggedInUserId, text: formData.text, createdAt: Date.parse(new Date())}]);
+    const tmpHis = [...chatHistory];
+    tmpHis[chatHistory.length-1][1].push({sender: loggedInUserId, text: formData.text, createdAt: Date.parse(new Date())});
+    setChatHistory(tmpHis);
 
     setFormData({ text: '' });
   }
@@ -103,7 +105,7 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
         if (!(resData.data && resData.data.success)) {
           throw new Error('An error occurred');
         }
-      });
+      }).catch(e => console.log(e));
   };
 
   useEffect(() => {
@@ -132,12 +134,18 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
     <Layout date = {date}>
       <h1><button className='btn btn-primary' type='button' onClick={askPermission}>Notify me for incoming messages</button></h1>
       <div className='container bg-gradient-primary'>
-        {chatHistory.map((msg, i) =>
-          <div style={{listStyleType: 'none', color: 'white'}} key ={msg._id || i} className={msg.sender === loggedInUserId ? 'media d-flex justify-content-end' : 'media d-flex justify-content-start'} >
-            <div style={{}} className={msg.sender === loggedInUserId ? 'bg-primary' : 'bg-secondary'} >
-              {msg.text} | {new Date(msg.createdAt).toTimeString().split(' ')[0].substr(0, 5)}
-            </div>
-          </div> )}
+        {chatHistory && chatHistory.map(val => {
+          return (<>
+            <h6 style={{listStyleType: 'none', color: 'white'}}>{val[0]}</h6>
+            <br/>
+            {val[1].map((msg, i) =>
+              <div style={{listStyleType: 'none', color: 'white'}} key ={msg._id || i} className={msg.sender === loggedInUserId ? 'media d-flex justify-content-end' : 'media d-flex justify-content-start'} >
+                <div style={{}} className={msg.sender === loggedInUserId ? 'bg-primary' : 'bg-secondary'} >
+                  {msg.text} | {new Date(msg.createdAt).toTimeString().split(' ')[0].substr(0, 5)}
+                </div>
+              </div> )}
+          </>);})
+        }
 
         <form className = 'form-inline' onSubmit = {handleSubmit}>
           <input
@@ -173,7 +181,8 @@ export async function getServerSideProps(ctx) {
         loggedInUserId = res.data[0];
         messages = res.data[1];
       })
-      .catch(() => {
+      .catch((e) => {
+        console.log(e);
         //if no auth, then redirect to the signin form.
         throw new Error('Please, login first');
       });
@@ -187,10 +196,12 @@ export async function getServerSideProps(ctx) {
       }
     };
   } catch (e) {
-    res.setHeader('location', '/');
+    const date = { currentYear: new Date().getFullYear() };
+    console.log(e);
+    /*res.setHeader('location', '/');
     res.statusCode = 302;
-    res.end();
-    return {props:{}};
+    res.end();*/
+    return {props:{messages: [], date, loggedInUserId:'', chatId: ctx.query.chat}};
   }
 }
 
