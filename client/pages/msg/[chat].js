@@ -39,7 +39,9 @@ export default function Chat({date, messages, loggedInUserId, chatId, chatEmail}
   });
 
   const [formData, setFormData] = useState({
-    text: ''
+    text: '',
+    picture: '',
+    rows: '1'
   });
   const [chatHistory, setChatHistory] = useState(messages);
   const [isTyping, setTyping] = useState(false);
@@ -67,6 +69,7 @@ export default function Chat({date, messages, loggedInUserId, chatId, chatEmail}
 
   function handleSubmit(event) {
     event.preventDefault();
+    if(!formData.text && !formData.picture) return;
     //socket.emit('chat', formData.text);
     socket.emit('PM', chatId, formData.text);
     const tmpHis = [...chatHistory];
@@ -167,18 +170,22 @@ export default function Chat({date, messages, loggedInUserId, chatId, chatEmail}
         }
 
         <h4 className='bg-white'>You are chatting with {chatEmail} {isTyping && (<><span>Typing</span><div className="spinner-grow text-primary" role="status"><span className='sr-only'></span></div></>)}</h4>
-
         <form className = 'form-inline' onSubmit = {handleSubmit}>
-          <input
+          <textarea
             name = 'text'
             type = 'text'
+            rows = {formData.rows}
+            cols = '100'
             value={formData.text}
             autoComplete = 'off'
             onChange={handleInputChange}
             onInput={handleInput}
             className='form-control'
             required/>
-          <button className='btn btn-primary' type='submit'>Send</button>
+          <button className='btn btn-primary mx-3' type='submit'>
+            <svg width="1em" height="1em" viewBox="0 0 16 16" className="bi bi-cursor" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+              <path fillRule="evenodd" d="M14.082 2.182a.5.5 0 0 1 .103.557L8.528 15.467a.5.5 0 0 1-.917-.007L5.57 10.694.803 8.652a.5.5 0 0 1-.006-.916l12.728-5.657a.5.5 0 0 1 .556.103zM2.25 8.184l3.897 1.67a.5.5 0 0 1 .262.263l1.67 3.897L12.743 3.52 2.25 8.184z"/>
+            </svg></button>
         </form>
         <div ref={messagesEndRef} />
       </div>
