@@ -192,7 +192,7 @@ apiRouter.post('/friends', async (req, res, next) => {
 apiRouter.get('/messages/:fromUserId', async (req, res, next) => {
   try {
     const messages = await getMessages(req.decoded.userId, req.params.fromUserId);
-    res.json([req.decoded.userId, [...messages]]);
+    res.json([[req.decoded.userId, messages[0]], [...messages[1]]]);
     //getMessages
   } catch (error) {
     debug(error);

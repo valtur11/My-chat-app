@@ -9,12 +9,12 @@ const getMessages = async (recepient, sender) => {
     const year = date.getUTCFullYear();
     return `${day}/${month}/${year}`;
   }
-  const [recepientBlocks, senderBlocks, messages] = await Promise.all([
+  const [recepientBlocks, [senderBlocks, senderEmail], messages] = await Promise.all([
     await User.findOne({_id: recepient}, {blocked: 1}),
-    await User.findOne({_id: sender}, {blocked: 1}),
+    await User.findOne({_id: sender}, {blocked: 1, email: 1}),
     await Message.find({ recepient: { $in: [recepient, sender]}, sender : { $in: [recepient, sender]}}).limit(100)
   ])
-    .then(vals => [vals[0].blocked, vals[1].blocked, vals[2]])
+    .then(vals => [vals[0].blocked, [vals[1].blocked, [vals[1].email]], vals[2]])
     .catch(err => { throw err; });
   const isBlockedR = recepientBlocks.find(el => el === sender);
   const isBlockedS = senderBlocks.find(el => el === recepient);
@@ -35,7 +35,7 @@ const getMessages = async (recepient, sender) => {
     lastISOString = val.createdAt;
     messagesByDay[byDayI][1].push(val);
   });
-  return messagesByDay;
+  return [senderEmail, messagesByDay];
 };
 
 module.exports = {getMessages};

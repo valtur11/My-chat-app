@@ -1,14 +1,21 @@
 import Layout from '../../components/Layout';
 import PropTypes from 'prop-types';
 import io from 'socket.io-client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import configs from '../../config';
 const {base_api_url, APP_SERVER_KEY} = configs;
 
 import cookie from 'cookie';
 let socket;
-export default function Chat({date, messages, loggedInUserId, chatId}) {
+export default function Chat({date, messages, loggedInUserId, chatId, chatEmail}) {
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(scrollToBottom, [messages]);
   useEffect(() =>{
     socket = io(base_api_url.slice(0, -4), {
       query: {
@@ -144,7 +151,7 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
 
   return (
     <Layout date = {date}>
-      <h1>You are chatting with user, who has ID:{chatId} (Soon with email in place of this ID)</h1>
+      <h4>You are chatting with {chatEmail}</h4>
       <div className='container bg-gradient-primary'>
         {chatHistory && chatHistory.map(val => {
           return (<>
@@ -159,6 +166,8 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
           </>);})
         }
 
+        <h4 className='bg-white'>You are chatting with {chatEmail} {isTyping && (<><span>Typing</span><div className="spinner-grow text-primary" role="status"><span className='sr-only'></span></div></>)}</h4>
+
         <form className = 'form-inline' onSubmit = {handleSubmit}>
           <input
             name = 'text'
@@ -170,8 +179,8 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
             className='form-control'
             required/>
           <button className='btn btn-primary' type='submit'>Send</button>
-          {isTyping && (<><span>Typing</span><div className="spinner-grow text-primary" role="status"><span className='sr-only'></span></div></>)}
         </form>
+        <div ref={messagesEndRef} />
       </div>
     </Layout>
   );
@@ -182,6 +191,7 @@ export async function getServerSideProps(ctx) {
   try {
     let loggedInUserId;
     let messages = [];
+    let chatEmail;
     if(!req.headers.cookie) throw new Error('Please, login first!');
     const cookies = cookie.parse(req.headers.cookie);
     if(!cookies.token) throw new Error('Please, login first!');
@@ -190,7 +200,8 @@ export async function getServerSideProps(ctx) {
     //authorize and retrieve all messages of a given user and route id
     await axios.get(`${base_api_url}/messages/${fromUserId}`, options)
       .then(res => {
-        loggedInUserId = res.data[0];
+        loggedInUserId = res.data[0][0];
+        chatEmail = res.data[0][1];
         messages = res.data[1];
         console.log(messages);
       })
@@ -205,7 +216,8 @@ export async function getServerSideProps(ctx) {
         date,
         messages,
         loggedInUserId,
-        chatId: ctx.query.chat
+        chatId: ctx.query.chat,
+        chatEmail
       }
     };
   } catch (e) {
