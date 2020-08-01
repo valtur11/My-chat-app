@@ -8,7 +8,7 @@ const cors = require('cors');
 const {addFriend, getFriends} = require('../messaging/friends');
 const {getMessages} = require('../messaging/messages');
 const webpush = require('web-push');
-const debug = require('debug')('index routes*');
+const debug = require('debug')('index routes');
 const User = require('../models/user');
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
@@ -27,9 +27,9 @@ webpush.setVapidDetails(
   vapidKeys.publicKey,
   vapidKeys.privateKey
 );
-console.log('-----------------------------------------------------------------');
-console.log(vapidKeys);
-console.log('-----------------------------------------------------------------');
+debug('-----------------------------------------------------------------');
+debug(vapidKeys);
+debug('-----------------------------------------------------------------');
 connectDB();
 
 apiRouter.use(cors()); // @Todo: Enable CORS using whitelist
@@ -37,7 +37,7 @@ apiRouter.use(bodyParser.json());
 
 const triggerPush = (subscription, dataToSend) => {
   return webpush.sendNotification(subscription, dataToSend)
-    .then(console.log('200'))
+    .then(debug('200'))
     .catch((err) => {
       if (err.statusCode === 410) {
         debug(410);
@@ -132,7 +132,7 @@ apiRouter.use((req, res,next) => {
     authError.status = 401;
     if(!req.headers.authorization) throw authError;
     const token = req.headers.authorization.split(' ')[1];
-    console.log(token);
+    debug(token);
     const decoded = auth.verifyToken(token);
     req.decoded = decoded;
     next();

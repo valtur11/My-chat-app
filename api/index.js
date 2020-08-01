@@ -2,7 +2,7 @@ const path = require('path');
 require('dotenv').config();
 const app = require('express')();
 const PORT = process.env.PORT || 8081;
-const debug = require('debug')('My_chat_app: index.js *');
+const debug = require('debug')('My_chat_app: index.js');
 const routes = require('./routes');
 const http = require('http');
 const server = http.createServer(app);
@@ -43,7 +43,7 @@ function getKeyByValue(map, searchValue) {
 io.use((socket, next) => {
   try {
     let loggedUserId = socket.handshake.query.loggedInUserId;
-    console.log('loggedUserid', loggedUserId);
+    debug('loggedUserid', loggedUserId);
     if (loggedUserId) socket.loggedUserId = loggedUserId;
     users.set(socket.loggedUserId, socket.id);
     return next();
