@@ -144,7 +144,7 @@ export default function Chat({date, messages, loggedInUserId, chatId}) {
 
   return (
     <Layout date = {date}>
-      <h1><button className='btn btn-primary' type='button' onClick={askPermission}>Notify me for incoming messages</button></h1>
+      <h1>You are chatting with user, who has ID:{chatId} (Soon with email in place of this ID)</h1>
       <div className='container bg-gradient-primary'>
         {chatHistory && chatHistory.map(val => {
           return (<>
@@ -211,9 +211,9 @@ export async function getServerSideProps(ctx) {
   } catch (e) {
     const date = { currentYear: new Date().getFullYear() };
     console.log(e);
-    /*res.setHeader('location', '/');
+    res.setHeader('location', '/');
     res.statusCode = 302;
-    res.end();*/
+    res.end();
     return {props:{messages: [], date, loggedInUserId:'', chatId: ctx.query.chat}};
   }
 }
