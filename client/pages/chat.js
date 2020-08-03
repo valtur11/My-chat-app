@@ -50,39 +50,41 @@ export default function Chat ({date}) {
   if (data && error) data.length = 0;
   return (
     <Layout date={date||{currentYear: 2020}}>
-      <h1>List of friends</h1>
-      {error &&  <div className='alert alert-danger' role="alert">{ error.response.data.message} <Link href='/'><a>Go back to homepage</a></Link> </div>}
-      {Array.isArray(data) && data.length === 0 && !error && <div><span>You dont have any friends in your list yet. Click the Add new friend button below!</span></div>}
-      {
-        !error && !data && <div className='spinner-border text-primary' role='status'>
-          <span className='sr-only'>Loading...</span>
-        </div>
-      }
-      <ul>
-        { data && data.map && data.map(friend =>
-          <li key={friend._id}><Link href={`/msg/${friend._id}`}><a> {friend.email}</a></Link></li>)
+      <div className='container'>
+        <h1>List of friends</h1>
+        {error &&  <div className='alert alert-danger' role="alert">{ error.response.data.message} <Link href='/'><a>Go back to homepage</a></Link> </div>}
+        {Array.isArray(data) && data.length === 0 && !error && <div><span>You dont have any friends in your list yet. Click the Add new friend button below!</span></div>}
+        {
+          !error && !data && <div className='spinner-border text-primary' role='status'>
+            <span className='sr-only'>Loading...</span>
+          </div>
         }
-      </ul>
+        <ul>
+          { data && data.map && data.map(friend =>
+            <li key={friend._id}><Link href={`/msg/${friend._id}`}><a> {friend.email}</a></Link></li>)
+          }
+        </ul>
 
-      <form className = 'form-inline' onSubmit = {handleSubmit}>
-        {formData.errorMessage && (<div className='alert alert-danger' role="alert">
-          {formData.errorMessage}
-        </div>)}
+        <form className = 'form-inline' onSubmit = {handleSubmit}>
+          {formData.errorMessage && (<div className='alert alert-danger' role="alert">
+            {formData.errorMessage}
+          </div>)}
 
-        {formData.successMessage && (<div className='alert alert-success' role="alert">
-           New friend added whose email is {formData.successMessage.email}
-        </div>)}
+          {formData.successMessage && (<div className='alert alert-success' role="alert">
+            New friend added whose email is {formData.successMessage.email}
+          </div>)}
 
-        <input
-          className='form-control'
-          placeholder='Email'
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={handleInputChange} />
+          <input
+            className='form-control'
+            placeholder='Email'
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleInputChange} />
 
-        <input type="submit" className ='btn btn-primary my-2' value='Add new friend' />
-      </form>
+          <input type="submit" className ='btn btn-primary my-2' value='Add new friend' />
+        </form>
+      </div>
     </Layout>
   );
 }
