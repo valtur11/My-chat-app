@@ -155,17 +155,20 @@ export default function Chat({date, messages, loggedInUserId, chatId, chatEmail}
   return (
     <Layout date = {date}>
       <h4>You are chatting with {chatEmail}</h4>
-      <div className='container bg-gradient-primary'>
-        {chatHistory && chatHistory.map(val => {
+      <div style={{background:'repeating-linear-gradient(to bottom right, #D0E90D 10%, #1536F1)'}} className='container-fluid'>
+        {chatHistory && chatHistory.map((val, i) => {
           return (<>
-            <h6 style={{listStyleType: 'none', color: 'white'}}>{val[0]}</h6>
+            <h6 style={{listStyleType: 'none', color: 'white'}} key ={i}>{val[0]}</h6>
             <br/>
             {val[1].map((msg, i) =>
-              <div style={{listStyleType: 'none', color: 'white'}} key ={msg._id || i} className={msg.sender === loggedInUserId ? 'media d-flex justify-content-end' : 'media d-flex justify-content-start'} >
-                <div style={{}} className={msg.sender === loggedInUserId ? 'bg-primary' : 'bg-secondary'} >
-                  {msg.text} | {new Date(msg.createdAt).toTimeString().split(' ')[0].substr(0, 5)}
+              <div className ='container justify-content-start' key ={msg._id || i}>
+                <div style={{listStyleType: 'none', color: 'white'}} className={msg.sender === loggedInUserId ? 'media flex-wrap' : 'media d-flex flex-wrap'} >
+                  <div style={{overflowWrap: 'break-word'}} className={msg.sender === loggedInUserId ? 'bg-primary mw-100' : 'bg-secondary mw-100'} >
+                    <p className='px-5 py-1 mw-100'>{msg.text}</p>
+                    <small className='pl-5'> {new Date(msg.createdAt).toTimeString().split(' ')[0].substr(0, 5)}</small>
+                  </div>
                 </div>
-              </div> )}
+              </div>)}
           </>);})
         }
 
