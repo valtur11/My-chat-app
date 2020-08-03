@@ -18,7 +18,9 @@ export default async (req, res) => {
   //then set the auth header from the cookie
   await axios.post(`${base_api_url}/${type}`, req.body, options)
     .then(function (response) {
-      res.setHeader('Set-Cookie', serialize('token', response.data.token, { path: '/', secure: true, httpOnly: true, maxAge: 7200, sameSite: 'strict'}));
+      const cookieOptions = { path: '/', secure: true, httpOnly: true, maxAge: 7200, sameSite: 'strict'};
+      if(process.env.NODE_ENV === 'development') delete cookieOptions.secure; //Enable cookies for local network bulds
+      res.setHeader('Set-Cookie', serialize('token', response.data.token, ));
       return res.status(200).json(response.data);
     })
     .catch(function (error) {
