@@ -5,10 +5,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import configs from '../../config';
 const {base_api_url, APP_SERVER_KEY} = configs;
-
+import Link from 'next/link';
 import cookie from 'cookie';
+
 let socket;
-export default function Chat({date, messages, loggedInUserId, chatId, chatEmail}) {
+export default function Chat({date, messages, loggedInUserId, chatId, chatEmail, errorMessage}) {
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -82,7 +83,7 @@ export default function Chat({date, messages, loggedInUserId, chatId, chatEmail}
     if(!formData.text && !formData.picture) return;
     //socket.emit('chat', formData.text);
     socket.emit('PM', chatId, formData.text);
-   addToChatHistory({sender: loggedInUserId, text: formData.text, createdAt: Date.parse(new Date())});
+    addToChatHistory({sender: loggedInUserId, text: formData.text, createdAt: Date.parse(new Date())});
 
     setFormData({ text: '' });
   }
@@ -196,6 +197,10 @@ export default function Chat({date, messages, loggedInUserId, chatId, chatEmail}
         </form>
         <div ref={messagesEndRef} />
       </div>
+
+      {errorMessage && (<div className='alert alert-danger' role="alert">
+        {errorMessage}  <Link href='/'><a>Go back to login page</a></Link>
+      </div>)}
     </Layout>
   );
 }
@@ -206,9 +211,9 @@ export async function getServerSideProps(ctx) {
     let loggedInUserId;
     let messages = [];
     let chatEmail;
-    if(!req.headers.cookie) throw new Error('Please, login first!');
+    if(!req.headers.cookie) throw {status: 401, message: 'Please, login first!'};
     const cookies = cookie.parse(req.headers.cookie);
-    if(!cookies.token) throw new Error('Please, login first!');
+    if(!cookies.token) throw {status: 401, message: 'Please, login first!'};
     const fromUserId = ctx.query.chat; // the route id here (if the route is /msg/3, then ctx.query.chat is 3)
     const options = { headers: { Authorization: `Bearer ${cookies.token}`} };
     //authorize and retrieve all messages of a given user and route id
@@ -237,10 +242,8 @@ export async function getServerSideProps(ctx) {
   } catch (e) {
     const date = { currentYear: new Date().getFullYear() };
     console.log(e);
-    res.setHeader('location', '/');
-    res.statusCode = 302;
-    res.end();
-    return {props:{messages: [], date, loggedInUserId:'', chatId: ctx.query.chat}};
+    const errorMessage = (e.response && e.response.data && e.response.data.error) ? e.response.data.error.message : e.message;
+    return {props:{messages: [], date, loggedInUserId:'', chatId: ctx.query.chat, chatEmail: '', errorMessage }};
   }
 }
 
