@@ -8,7 +8,7 @@ export default async (req, res) => {
   const type = req.query.type;
   if (type === 'logout')  {
     try {
-      res.setHeader('Set-Cookie','token=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');
+      res.setHeader('Set-Cookie','token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; maxAge=0');
       return res.status(200).json({message: 'Logged out.'});
     } catch (e){
       return res.status(500).json({error: { status: 500, code: 'cannot-set-cookies', message: 'Can\'t logout'}});
@@ -18,9 +18,9 @@ export default async (req, res) => {
   //then set the auth header from the cookie
   await axios.post(`${base_api_url}/${type}`, req.body, options)
     .then(function (response) {
-      const cookieOptions = { path: '/', secure: true, httpOnly: true, maxAge: 7200, sameSite: 'strict'};
+      const cookieOptions = { path: '/', secure: true, httpOnly: true, maxAge: (7200-120), expires: new Date(Date.parse()+7080000), sameSite: 'strict'};
       if(process.env.NODE_ENV === 'development') delete cookieOptions.secure; //Enable cookies for local network bulds
-      res.setHeader('Set-Cookie', serialize('token', response.data.token, ));
+      res.setHeader('Set-Cookie', serialize('token', response.data.token, cookieOptions));
       return res.status(200).json(response.data);
     })
     .catch(function (error) {
