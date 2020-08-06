@@ -30,7 +30,7 @@ export default function Chat({date, messages, loggedInUserId, chatId, chatEmail}
     });
 
     socket.on('PM', obj => {
-      setChatHistory([...chatHistory, obj]);
+      addToChatHistory(obj);
       console.log(chatHistory);
     });
     socket.on('error', (error) => {
@@ -67,18 +67,22 @@ export default function Chat({date, messages, loggedInUserId, chatId, chatEmail}
     return `${day}/${month}/${year}`;
   }
 
+  function addToChatHistory(msgObj) {
+    const tmpHis = [...chatHistory];
+    if(tmpHis.length===0){
+      tmpHis[0] = [getDayMonthYearString(), [msgObj]];
+    } else {
+      tmpHis[chatHistory.length-1][1].push(msgObj);
+    }
+    setChatHistory(tmpHis);
+  }
+
   function handleSubmit(event) {
     event.preventDefault();
     if(!formData.text && !formData.picture) return;
     //socket.emit('chat', formData.text);
     socket.emit('PM', chatId, formData.text);
-    const tmpHis = [...chatHistory];
-    if(tmpHis.length===0){
-      tmpHis[0] = [getDayMonthYearString(), [{sender: loggedInUserId, text: formData.text, createdAt: Date.parse(new Date())}]];
-    } else {
-      tmpHis[chatHistory.length-1][1].push({sender: loggedInUserId, text: formData.text, createdAt: Date.parse(new Date())});
-    }
-    setChatHistory(tmpHis);
+   addToChatHistory({sender: loggedInUserId, text: formData.text, createdAt: Date.parse(new Date())});
 
     setFormData({ text: '' });
   }
