@@ -5,7 +5,7 @@ const connectDB = require('../config/mongoose');
 const auth = require('../authentication');
 const errorHandler = require('./errorHandler');
 const cors = require('cors');
-const {addFriend, getFriends} = require('../messaging/friends');
+const {addFriend, getFriends, blockFriend} = require('../messaging/friends');
 const {getMessages} = require('../messaging/messages');
 const webpush = require('web-push');
 const debug = require('debug')('index routes');
@@ -126,6 +126,15 @@ apiRouter.post('/login', async (req, res, next) => {
   }
 });
 
+apiRouter.post('/change-password', async (req, res, next) => {
+  try {
+    const data = await auth.changePassword(req.body.email, req.body.password);
+    res.status(data.status).json(data.data || data);
+  } catch (error) {
+    next(error);
+  }
+});
+
 apiRouter.use((req, res,next) => {
   try {
     const authError = new Error('Please, login first');
@@ -183,6 +192,15 @@ apiRouter.get('/friends', async (req, res, next) => {
 apiRouter.post('/friends', async (req, res, next) => {
   try {
     const friend = await addFriend(req.decoded.email, req.body.email);
+    res.status(200).json(friend);
+  } catch (error) {
+    next(error);
+  }
+});
+
+apiRouter.get('/block/:blockedUserId', async (req, res, next) => {
+  try {
+    const friend = await blockFriend(req.decoded.userId, req.params.blockedUserId);
     res.status(200).json(friend);
   } catch (error) {
     next(error);
