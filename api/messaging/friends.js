@@ -42,6 +42,19 @@ const blockFriend = async(userId, blockedUserId) => {
   }
   await foundUser.save();
   return foundUser;
-}
+};
 
-module.exports = {addFriend, getFriends, blockFriend};
+const muteFriend = async(userId, mutedUserId) => {
+  const foundUser = await User.findOne({_id: userId}, {muted: 1});
+  const blocked = foundUser.muted.find(mutedUserId);
+  if(blocked) {
+    const i = foundUser.muted.indexOf(mutedUserId);
+    if (i > -1) foundUser.muted.splice(i, 1);
+  } else {
+    foundUser.muted.push(mutedUserId);
+  }
+  await foundUser.save();
+  return foundUser;
+};
+
+module.exports = { addFriend, getFriends, blockFriend, muteFriend };

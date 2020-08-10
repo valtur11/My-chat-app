@@ -5,7 +5,7 @@ const connectDB = require('../config/mongoose');
 const auth = require('../authentication');
 const errorHandler = require('./errorHandler');
 const cors = require('cors');
-const {addFriend, getFriends, blockFriend} = require('../messaging/friends');
+const {addFriend, getFriends, blockFriend, muteFriend} = require('../messaging/friends');
 const {getMessages} = require('../messaging/messages');
 const webpush = require('web-push');
 const debug = require('debug')('index routes');
@@ -201,6 +201,15 @@ apiRouter.post('/friends', async (req, res, next) => {
 apiRouter.get('/block/:blockedUserId', async (req, res, next) => {
   try {
     const friend = await blockFriend(req.decoded.userId, req.params.blockedUserId);
+    res.status(200).json(friend);
+  } catch (error) {
+    next(error);
+  }
+});
+
+apiRouter.get('/mute/:mutedUserId', async (req, res, next) => {
+  try {
+    const friend = await muteFriend(req.decoded.userId, req.params.muteUserId);
     res.status(200).json(friend);
   } catch (error) {
     next(error);
