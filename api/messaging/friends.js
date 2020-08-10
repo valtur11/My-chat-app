@@ -31,4 +31,17 @@ const getFriends = async (email) => {
   return foundUser.friends;
 };
 
-module.exports = {addFriend, getFriends};
+const blockFriend = async(userId, blockedUserId) => {
+  const foundUser = await User.findOne({_id: userId}, {blocked: 1});
+  const blocked = foundUser.blocked.find(blockedUserId);
+  if(blocked) {
+    const i = foundUser.blocked.indexOf(blockedUserId);
+    if (i > -1) foundUser.blocked.splice(i, 1);
+  } else {
+    foundUser.blocked.push(blockedUserId);
+  }
+  await foundUser.save();
+  return foundUser;
+}
+
+module.exports = {addFriend, getFriends, blockFriend};
