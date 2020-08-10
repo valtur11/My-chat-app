@@ -18,7 +18,7 @@ const getMessages = async (recepient, sender) => {
     .catch(err => { throw err; });
   const isBlockedR = recepientBlocks.find(el => el === sender);
   const isBlockedS = senderBlocks.find(el => el === recepient);
-  if(isBlockedR || isBlockedS) throw { status: 403, message: 'User banned or blocked'};
+  if(isBlockedR || isBlockedS) throw { status: 403, message: 'You\'ve been blocked or Your friend has deactivated their account.'};
   let messagesByDay = []; // [Day1,Day2,Day3, [Day, [message(val)]]]
   let byDayI = -1;
   let lastISOString = new Date(0).toISOString();
