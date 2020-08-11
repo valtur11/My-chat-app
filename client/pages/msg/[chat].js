@@ -16,6 +16,8 @@ export default function Chat({date, messages, loggedInUserId, chatId, chatEmail,
     messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const [errorMessageState, setError] = useState('');
+  const [successMessage, setSuccess] = useState('');
   useEffect(scrollToBottom, [messages]);
   useEffect(() =>{
     socket = io(base_api_url.slice(0, -4), {
@@ -88,6 +90,18 @@ export default function Chat({date, messages, loggedInUserId, chatId, chatEmail,
     setFormData({ text: '' });
   }
 
+  const handleBlockFriend = () => {
+    axios.post('/api/friendsActions?type=block', {id: chatId})
+      .then(r => {console.log(r);setSuccess(r.data.message)})
+      .catch(() => setError('Blocking failed.'));
+  };
+
+  const handleMuteFriend = () => {
+    axios.post('/api/friendsActions?type=mute', {id: chatId})
+      .then(r => setSuccess(r.data.message))
+      .catch(() => setError('Muting failed.'));
+  };
+
   const askPermission = () => {
     return new Promise((resolve, reject) => {
       const permissionResult = Notification.requestPermission((result) => {
@@ -159,7 +173,12 @@ export default function Chat({date, messages, loggedInUserId, chatId, chatEmail,
 
   return (
     <Layout date = {date}>
-      <h4>You are chatting with {chatEmail}</h4>
+      <h4>You are chatting with {chatEmail} </h4>
+      <button className='btn btn-primary' onClick={handleBlockFriend}>Block this friend</button>
+      <button className='btn btn-primary' onClick={handleMuteFriend}>Mute this friend</button>
+      {successMessage && (<div className='alert alert-success' role="alert">
+        {successMessage}
+      </div>)}
       <div style={{background:'repeating-linear-gradient(to bottom right, #D0E90D 10%, #1536F1)'}} className='container-fluid'>
         {chatHistory && chatHistory.map((val, i) => {
           return (<>
@@ -198,8 +217,8 @@ export default function Chat({date, messages, loggedInUserId, chatId, chatEmail,
         <div ref={messagesEndRef} />
       </div>
 
-      {errorMessage && (<div className='alert alert-danger' role="alert">
-        {errorMessage}  <Link href='/'><a>Go back to login page</a></Link>
+      {(errorMessage || errorMessageState) && (<div className='alert alert-danger' role="alert">
+        {errorMessage || errorMessageState}  <Link href='/'><a>Go back to login page</a></Link>
       </div>)}
     </Layout>
   );
