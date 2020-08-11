@@ -209,7 +209,7 @@ apiRouter.get('/block/:blockedUserId', async (req, res, next) => {
 
 apiRouter.get('/mute/:mutedUserId', async (req, res, next) => {
   try {
-    const friend = await muteFriend(req.decoded.userId, req.params.muteUserId);
+    const friend = await muteFriend(req.decoded.userId, req.params.mutedUserId);
     res.status(200).json(friend);
   } catch (error) {
     next(error);

@@ -33,7 +33,7 @@ const getFriends = async (email) => {
 
 const blockFriend = async(userId, blockedUserId) => {
   const foundUser = await User.findOne({_id: userId}, {blocked: 1});
-  const blocked = foundUser.blocked.find(({_id}) => _id === blockedUserId);
+  const blocked = foundUser.blocked.find(val => val == blockedUserId);
   if(blocked) {
     const i = foundUser.blocked.indexOf(blockedUserId);
     if (i > -1) foundUser.blocked.splice(i, 1);
@@ -46,8 +46,8 @@ const blockFriend = async(userId, blockedUserId) => {
 
 const muteFriend = async(userId, mutedUserId) => {
   const foundUser = await User.findOne({_id: userId}, {muted: 1});
-  const blocked = foundUser.muted.find(({_id}) => _id === mutedUserId);
-  if(blocked) {
+  const muted = foundUser.muted.find(val => val == mutedUserId);
+  if(muted) {
     const i = foundUser.muted.indexOf(mutedUserId);
     if (i > -1) foundUser.muted.splice(i, 1);
   } else {
