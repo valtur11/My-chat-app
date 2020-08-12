@@ -69,7 +69,7 @@ const createAuthMethods = (lib) => {
       const foundUser = await lib.user.findOne({_id});
       foundUser.password = newPassword;
       await foundUser.save();
-      return foundUser;
+      return {data: foundUser, status: 200};
     },
     verifyToken(token) {
       try {
