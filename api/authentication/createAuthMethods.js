@@ -65,6 +65,12 @@ const createAuthMethods = (lib) => {
         }
       }
     },
+    async changePassword(_id, newPassword) {
+      const foundUser = await lib.user.findOne({_id});
+      foundUser.password = newPassword;
+      await foundUser.save();
+      return foundUser;
+    },
     verifyToken(token) {
       try {
         const decoded = lib.jwt.verify(token, lib.env.JWT_SECRET);

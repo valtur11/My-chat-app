@@ -126,15 +126,6 @@ apiRouter.post('/login', async (req, res, next) => {
   }
 });
 
-apiRouter.post('/change-password', async (req, res, next) => {
-  try {
-    const data = await auth.changePassword(req.body.email, req.body.password);
-    res.status(data.status).json(data.data || data);
-  } catch (error) {
-    next(error);
-  }
-});
-
 apiRouter.use((req, res,next) => {
   try {
     const authError = new Error('Please, login first');
@@ -145,6 +136,15 @@ apiRouter.use((req, res,next) => {
     const decoded = auth.verifyToken(token);
     req.decoded = decoded;
     next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+apiRouter.post('/change-password', async (req, res, next) => {
+  try {
+    const data = await auth.changePassword(req.decoded.userId, req.body.password);
+    res.status(data.status).json(data.data || data);
   } catch (error) {
     next(error);
   }

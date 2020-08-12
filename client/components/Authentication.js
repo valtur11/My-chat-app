@@ -64,7 +64,7 @@ function AuthForm ({ type }) {
           {authType} successful. Email: {formData.successMessage.email}
         </div>)}
 
-        <div className='form-group'>
+        { type !== 'change-password' && <div className='form-group'>
           <label>Email</label>
           <input
             className='form-control'
@@ -73,7 +73,7 @@ function AuthForm ({ type }) {
             value={formData.email}
             onChange={handleInputChange}
             required />
-        </div>
+        </div>}
 
         <div className='form-group'>
           <label>Password</label>
@@ -107,9 +107,9 @@ function AuthForm ({ type }) {
         <input type="submit" className ='btn btn-primary my-2' value={authType} />
 
         {
-          type === 'login' ? (
+          type !== 'change-password' && (type === 'login' ? (
             <p className='text-muted'>Need an account? <Link href='/signup'><a> Sign up </a></Link></p>
-          ) : (<p className='text-muted'>Already have an account? <Link href='/'><a> Login </a></Link></p>)
+          ) : (<p className='text-muted'>Already have an account? <Link href='/'><a> Login </a></Link></p>))
         }
       </form>
     </>
