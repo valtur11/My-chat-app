@@ -8,7 +8,7 @@ const cors = require('cors');
 const {addFriend, getFriends, blockFriend, muteFriend} = require('../messaging/friends');
 const {getMessages} = require('../messaging/messages');
 const webpush = require('web-push');
-const debug = require('debug')('index routes');
+const debug = require('debug')('index routes*');
 const User = require('../models/user');
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
@@ -17,6 +17,27 @@ const { resolve } = require('path');
 // Connection URL
 const url = process.env.MONGO_URL || 'mongodb://localhost:27017/my-chat-app';
 
+/**
+ * Twilio verification
+ */
+
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+
+const twilioClient = require('twilio')(accountSid, authToken);
+
+const verify = (email) => {
+  twilioClient.verify
+    .services(process.env.My_Chat_App_Email_VerificationService_SID)
+    .verifications.create({ to: email, channel: 'email' })
+    .then(verification => {
+      console.log('Verification email sent', verification.sid);
+      //res.redirect(`/verify?email=${req.body.email}`);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+}
 const vapidKeys = {
   publicKey: process.env.VAPID_PUBLIC_KEY,
   privateKey: process.env.VAPID_PRIVATE_KEY
@@ -29,6 +50,7 @@ webpush.setVapidDetails(
 );
 debug('-----------------------------------------------------------------');
 debug(vapidKeys);
+debug(accountSid, authToken);
 debug('-----------------------------------------------------------------');
 connectDB();
 
@@ -110,6 +132,8 @@ apiRouter.post('/signup', async (req, res, next) => {
   try {
     if(req.headers.authorization.split(' ')[1]) throw { status: 400, message: 'Already logged in.'};
     const data = await auth.signup(req.body);
+    //send email verification after successful signup
+    verify(req.body.email);
     res.status(data.status).json(data.data || data);
   } catch (error) {
     next(error);
@@ -141,6 +165,32 @@ apiRouter.use((req, res,next) => {
   }
 });
 
+apiRouter.post('/verify', async (req, res, next) => {
+  const userCode = req.body.code;
+  const email = req.decoded.email;
+  twilioClient.verify
+    .services(process.env.My_Chat_App_Email_VerificationService_SID)
+    .verificationChecks.create({ to: email, code: userCode })
+    .then(verification_check => {
+      if (verification_check.status === 'approved') {
+        auth.verifyUser(email);
+        res.redirect('/chat');
+      } else {
+        next({
+          email: email,
+          status: 400,
+          message: 'Verification Failed. Please enter the code from your email'
+        });
+      }
+    })
+    .catch(error => {
+      console.log(error);
+      res.render('verify', {
+        email: email,
+        message: 'Verification Failed. Please enter the code from your email'
+      });
+    });
+});
 apiRouter.post('/change-password', async (req, res, next) => {
   try {
     const data = await auth.changePassword(req.decoded.userId, req.body.password);

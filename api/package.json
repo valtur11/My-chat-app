@@ -23,6 +23,7 @@
     "mongodb": "^3.5.9",
     "mongoose": "^5.9.13",
     "socket.io": "^2.3.0",
+    "twilio": "^3.48.2",
     "web-push": "^3.4.4"
   },
   "devDependencies": {

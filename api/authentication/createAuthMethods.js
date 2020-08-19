@@ -71,6 +71,12 @@ const createAuthMethods = (lib) => {
       await foundUser.save();
       return {data: foundUser, status: 200};
     },
+    async verifyUser(email) {
+      const foundUser = await lib.user.findOne({email});
+      foundUser.isVerified = true;
+      await foundUser.save();
+      return {data, foundUser, status: 200};
+    },
     verifyToken(token) {
       try {
         const decoded = lib.jwt.verify(token, lib.env.JWT_SECRET);

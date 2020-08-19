@@ -31,7 +31,11 @@ const userSchema = Schema({
   }],
   messages: [{
     type: Schema.Types.ObjectId, ref: 'Message'
-  }]
+  }],
+  isVerified: {
+    type: Boolean,
+    default: false
+  }
 });
 
 userSchema.pre('save', async function (next) {
