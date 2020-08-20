@@ -8,7 +8,7 @@ const cors = require('cors');
 const {addFriend, getFriends, blockFriend, muteFriend} = require('../messaging/friends');
 const {getMessages} = require('../messaging/messages');
 const webpush = require('web-push');
-const debug = require('debug')('index routes*');
+const debug = require('debug')('index routes');
 const User = require('../models/user');
 const MongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
@@ -37,7 +37,7 @@ const verify = (email) => {
     .catch(error => {
       console.log(error);
     });
-}
+};
 const vapidKeys = {
   publicKey: process.env.VAPID_PUBLIC_KEY,
   privateKey: process.env.VAPID_PRIVATE_KEY
@@ -168,6 +168,7 @@ apiRouter.use((req, res,next) => {
 apiRouter.post('/verify', async (req, res, next) => {
   const userCode = req.body.code;
   const email = req.decoded.email;
+  debug(req.body);
   twilioClient.verify
     .services(process.env.My_Chat_App_Email_VerificationService_SID)
     .verificationChecks.create({ to: email, code: userCode })

@@ -3,6 +3,7 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import Link from 'next/link';
 import Router from 'next/router';
+import Verify from '../pages/verify';
 
 function AuthForm ({ type }) {
   const [formData, setFormData] = useState({
@@ -64,7 +65,7 @@ function AuthForm ({ type }) {
           {authType} successful. Email: {formData.successMessage.email}
         </div>)}
 
-        { type !== 'change-password' && <div className='form-group'>
+        { type !== 'change-password' && type !== 'verify' && <div className='form-group'>
           <label>Email</label>
           <input
             className='form-control'
@@ -75,7 +76,18 @@ function AuthForm ({ type }) {
             required />
         </div>}
 
-        <div className='form-group'>
+        { type ==='verify' && <div className='form-group'>
+          <label>Code</label>
+          <input
+            className='form-control'
+            name="code"
+            type="text"
+            value={formData.code}
+            onChange={handleInputChange}
+            required />
+        </div> }
+
+        { type !== 'verify' && <div className='form-group'>
           <label>Password</label>
 
           <div className='input-group'>
@@ -103,11 +115,12 @@ function AuthForm ({ type }) {
 
           { type === 'login' && (<p className='text-muted'><a href="#">Forgot your password?</a></p>)}
         </div>
+        }
 
         <input type="submit" className ='btn btn-primary my-2' value={authType} />
 
         {
-          type !== 'change-password' && (type === 'login' ? (
+          (type === 'login' || type === 'signup') && (type === 'login' ? (
             <p className='text-muted'>Need an account? <Link href='/signup'><a> Sign up </a></Link></p>
           ) : (<p className='text-muted'>Already have an account? <Link href='/'><a> Login </a></Link></p>))
         }
