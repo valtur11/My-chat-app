@@ -43,9 +43,10 @@ function Layout({ children, date }) {
       </main>
       <footer className = 'pt-4 my-md-5 pt-md-5 border-top text-muted'>
         <div className = 'container'>
-          <p> <a href = '#'> Privacy Policy </a> </p>
-          <p> <a href = '#'> Terms of Service </a> </p>
-          <p><Link href='/changePassword'><a>Your profle: Change your password</a></Link></p>
+          <p> <a href = '/privacy'> Privacy Policy </a> </p>
+          <p> <a href = '/terms'> Terms of Service </a> </p>
+          <p><Link href='/faq'><a>FAQ</a></Link></p>
+          <p><Link href='/changePassword'><a>Your profile: Change your password</a></Link></p>
           <p> &copy; {date.currentYear} <img  src='/profile.png' className='img-fluid' width='130' height='30' /> Created by <a href = 'https://valentinratchev.com'> Valentin Ratchev </a> </p>
         </div>
       </footer>
