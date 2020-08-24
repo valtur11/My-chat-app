@@ -15,6 +15,9 @@ const messageSchema = Schema({
   },
   sender: {
     type: Schema.Types.ObjectId, ref: 'User'
+  },
+  picture: {
+    type: String
   }
 });
 
