@@ -168,33 +168,37 @@ apiRouter.use((req, res,next) => {
 });
 
 apiRouter.post('/verify', async (req, res, next) => {
-  const userCode = req.body.code;
-  const email = req.decoded.email;
-  debug(req.body);
-  const isAlreadyVerified = await auth.isUserVerified(email);
-  if(isAlreadyVerified) throw next({email, status: 400, message: 'Already verified'});
-  twilioClient.verify
-    .services(process.env.My_Chat_App_Email_VerificationService_SID)
-    .verificationChecks.create({ to: email, code: userCode })
-    .then(verification_check => {
-      if (verification_check.status === 'approved') {
-        auth.verifyUser(email);
-        res.redirect('/chat');
-      } else {
-        next({
-          email,
-          status: 400,
+  try {
+    const userCode = req.body.code;
+    const email = req.decoded.email;
+    debug(req.body);
+    const isAlreadyVerified = await auth.isUserVerified(email);
+    if(isAlreadyVerified) throw {email, status: 400, message: 'Already verified'};
+    twilioClient.verify
+      .services(process.env.My_Chat_App_Email_VerificationService_SID)
+      .verificationChecks.create({ to: email, code: userCode })
+      .then(verification_check => {
+        if (verification_check.status === 'approved') {
+          auth.verifyUser(email);
+          res.redirect('/chat');
+        } else {
+          next({
+            email,
+            status: 400,
+            message: 'Verification Failed. Please enter the code from your email'
+          });
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        res.render('verify', {
+          email: email,
           message: 'Verification Failed. Please enter the code from your email'
         });
-      }
-    })
-    .catch(error => {
-      console.log(error);
-      res.render('verify', {
-        email: email,
-        message: 'Verification Failed. Please enter the code from your email'
       });
-    });
+  } catch (e) {
+    next(e);
+  }
 });
 
 apiRouter.get('/resend-verification', async (req, res, next) => {
