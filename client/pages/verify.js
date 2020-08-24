@@ -1,17 +1,19 @@
 import Layout from '../components/Layout';
 import AuthForm from '../components/Authentication';
+import axios from 'axios';
 
 export default function Verify ({data}) {
+  const resend = () => axios.post('/api/hello?type=resend-verification&method=get').catch(console.log('smth went wrong'));
   return (
     <Layout date = {data}>
       <div className="jumbotron jumbotron-fluid">
         <div className = 'container'>
           <h1>
-              Enter the veficication code from the email.
+              Enter the verification code from the email.
           </h1>
 
           <p className="lead">
-          Didn't receive email? <a href='#'>Resend verification</a>
+          Didn't receive email? <button className='btn btn-primary' onClick={resend}>Resend verification</button>
           </p>
         </div>
       </div>

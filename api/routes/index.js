@@ -26,7 +26,7 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 
 const twilioClient = require('twilio')(accountSid, authToken);
 
-const verify = (email) => {
+const sendVerify = (email) => {
   twilioClient.verify
     .services(process.env.My_Chat_App_Email_VerificationService_SID)
     .verifications.create({ to: email, channel: 'email' })
@@ -133,7 +133,7 @@ apiRouter.post('/signup', async (req, res, next) => {
     if(req.headers.authorization.split(' ')[1]) throw { status: 400, message: 'Already logged in.'};
     const data = await auth.signup(req.body);
     //send email verification after successful signup
-    verify(req.body.email);
+    sendVerify(req.body.email);
     res.status(data.status).json(data.data || data);
   } catch (error) {
     next(error);
@@ -152,12 +152,14 @@ apiRouter.post('/login', async (req, res, next) => {
 
 apiRouter.use((req, res,next) => {
   try {
+    debug('start', req.headers);
     const authError = new Error('Please, login first');
     authError.status = 401;
     if(!req.headers.authorization) throw authError;
     const token = req.headers.authorization.split(' ')[1];
     debug(token);
     const decoded = auth.verifyToken(token);
+    debug('decoded');
     req.decoded = decoded;
     next();
   } catch (error) {
@@ -169,6 +171,8 @@ apiRouter.post('/verify', async (req, res, next) => {
   const userCode = req.body.code;
   const email = req.decoded.email;
   debug(req.body);
+  const isAlreadyVerified = await auth.isUserVerified(email);
+  if(isAlreadyVerified) throw next({email, status: 400, message: 'Already verified'});
   twilioClient.verify
     .services(process.env.My_Chat_App_Email_VerificationService_SID)
     .verificationChecks.create({ to: email, code: userCode })
@@ -178,7 +182,7 @@ apiRouter.post('/verify', async (req, res, next) => {
         res.redirect('/chat');
       } else {
         next({
-          email: email,
+          email,
           status: 400,
           message: 'Verification Failed. Please enter the code from your email'
         });
@@ -192,6 +196,15 @@ apiRouter.post('/verify', async (req, res, next) => {
       });
     });
 });
+
+apiRouter.get('/resend-verification', async (req, res, next) => {
+  try {
+    sendVerify(req.decoded.email);
+  } catch(e){
+    next(e);
+  }
+});
+
 apiRouter.post('/change-password', async (req, res, next) => {
   try {
     const data = await auth.changePassword(req.decoded.userId, req.body.password);
